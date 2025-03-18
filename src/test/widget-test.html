@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #0066cc;
+        }
+
+        h2 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            color: #444;
+        }
+
+        code {
+            display: block;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+
+        .note {
+            background-color: #fffde7;
+            padding: 10px;
+            border-left: 4px solid #ffeb3b;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Chat Widget Test Page</h1>
+        <p>This page is for testing the integration of your chat widget</p>
+    </header>
+
+    <section>
+        <h2>About This Test Page</h2>
+        <p>
+            This is a simple test page to demonstrate how the chat widget looks and works when embedded on a website.
+            The widget should appear in the bottom right corner of this page.
+        </p>
+
+        <div class="note">
+            <strong>Note:</strong> Paste your generated chat widget script just before the closing &lt;/body&gt; tag in
+            this HTML file.
+        </div>
+    </section>
+
+    <section>
+        <h2>Sample Content</h2>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget justo nec purus faucibus efficitur.
+            Vivamus vel risus vitae libero tincidunt fringilla. Sed hendrerit, enim vel ultricies lacinia, nunc est
+            elementum odio, in tincidunt nisi risus vel magna.
+        </p>
+        <p>
+            Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec
+            efficitur
+            tincidunt felis, quis tempus erat dapibus non. Nullam vel justo vel velit scelerisque varius. Integer
+            cursus,
+            lorem et pharetra dignissim, nisl dui feugiat lorem, vitae fermentum magna dui at sapien.
+        </p>
+    </section>
+
+    <section>
+        <h2>Integration Instructions</h2>
+        <ol>
+            <li>Generate your chat widget script from the Widget Generator</li>
+            <li>Copy the generated script</li>
+            <li>Paste it in this HTML file just before the closing &lt;/body&gt; tag</li>
+            <li>Save the file and open it in a browser to test</li>
+        </ol>
+    </section>
+
+    <!-- Paste your chat widget script here -->
+
+    <!-- WhatsApp Chat Widget -->
+    <script>
+        (function () {
+            // Configuration - WhatsApp number
+            var whatsappNumber = "+918077019014";
+            var welcomeMessage = 'Hello! I have a question about your services.';
+
+            // Create widget container
+            var container = document.createElement('div');
+            container.id = 'whatsapp-chat-widget';
+            container.style.position = 'fixed';
+            container.style.bottom = '20px';
+            container.style.right = '20px';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+
+            // Create widget button
+            var button = document.createElement('button');
+            button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
+            button.style.width = '56px';
+            button.style.height = '56px';
+            button.style.borderRadius = '50%';
+            button.style.backgroundColor = '#25D366';
+            button.style.color = '#fff';
+            button.style.border = 'none';
+            button.style.cursor = 'pointer';
+            button.style.display = 'flex';
+            button.style.alignItems = 'center';
+            button.style.justifyContent = 'center';
+            button.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+            button.style.transition = 'transform 0.3s ease';
+            button.title = 'Chat with us on WhatsApp';
+            container.appendChild(button);
+
+            // Create chat window (initially hidden)
+            var chatWindow = document.createElement('div');
+            chatWindow.style.position = 'absolute';
+            chatWindow.style.bottom = '70px';
+            chatWindow.style.right = '0';
+            chatWindow.style.width = '320px';
+            chatWindow.style.backgroundColor = '#fff';
+            chatWindow.style.borderRadius = '12px';
+            chatWindow.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+            chatWindow.style.display = 'none';
+            chatWindow.style.flexDirection = 'column';
+            chatWindow.style.overflow = 'hidden';
+            chatWindow.style.transition = 'all 0.3s ease';
+            chatWindow.style.transform = 'scale(0.9)';
+            chatWindow.style.opacity = '0';
+            container.appendChild(chatWindow);
+
+            // Create chat header
+            var header = document.createElement('div');
+            header.style.backgroundColor = '#25D366';
+            header.style.color = '#fff';
+            header.style.padding = '12px';
+            header.style.display = 'flex';
+            header.style.alignItems = 'center';
+            header.style.justifyContent = 'space-between';
+            chatWindow.appendChild(header);
+
+            // Header content
+            var headerTitle = document.createElement('div');
+            headerTitle.style.display = 'flex';
+            headerTitle.style.alignItems = 'center';
+
+            var logo = document.createElement('div');
+            logo.style.width = '32px';
+            logo.style.height = '32px';
+            logo.style.borderRadius = '50%';
+            logo.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            logo.style.display = 'flex';
+            logo.style.alignItems = 'center';
+            logo.style.justifyContent = 'center';
+            logo.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
+            headerTitle.appendChild(logo);
+
+            var titleText = document.createElement('div');
+            titleText.style.marginLeft = '10px';
+            var title = document.createElement('p');
+            title.style.margin = '0';
+            title.style.fontWeight = 'bold';
+            title.textContent = 'John';
+            var subtitle = document.createElement('p');
+            subtitle.style.margin = '0';
+            subtitle.style.fontSize = '12px';
+            subtitle.style.opacity = '0.8';
+            subtitle.textContent = 'Online now';
+            titleText.appendChild(title);
+            titleText.appendChild(subtitle);
+            headerTitle.appendChild(titleText);
+
+            header.appendChild(headerTitle);
+
+            var closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+            closeBtn.style.backgroundColor = 'transparent';
+            closeBtn.style.border = 'none';
+            closeBtn.style.color = '#fff';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.padding = '4px';
+            header.appendChild(closeBtn);
+
+            // Chat body
+            var chatBody = document.createElement('div');
+            chatBody.style.padding = '16px';
+            chatBody.style.overflowY = 'auto';
+            chatBody.style.flex = '1';
+            chatBody.style.height = '260px';
+            chatBody.style.backgroundColor = '#ECE5DD';
+            chatWindow.appendChild(chatBody);
+
+            // Add initial message
+            var initialMessage = document.createElement('div');
+            initialMessage.style.backgroundColor = '#DCF8C6';
+            initialMessage.style.borderRadius = '8px';
+            initialMessage.style.padding = '10px';
+            initialMessage.style.marginBottom = '10px';
+            initialMessage.style.maxWidth = '80%';
+            var messageText = document.createElement('p');
+            messageText.style.margin = '0';
+            messageText.style.color = '#303030';
+            messageText.textContent = 'Greetings! And Welcome To Company Name! How May We Assist You Today?';
+            initialMessage.appendChild(messageText);
+            chatBody.appendChild(initialMessage);
+
+            // Add start chat button
+            var startChat = document.createElement('div');
+            startChat.style.padding = '16px';
+            startChat.style.borderTop = '1px solid #E0E0E0';
+            startChat.style.backgroundColor = '#f5f5f5';
+            chatWindow.appendChild(startChat);
+
+            var startChatBtn = document.createElement('button');
+            startChatBtn.textContent = 'Start Chat with WhatsApp';
+            startChatBtn.style.backgroundColor = '#25D366';
+            startChatBtn.style.color = 'white';
+            startChatBtn.style.border = 'none';
+            startChatBtn.style.borderRadius = '24px';
+            startChatBtn.style.padding = '12px 16px';
+            startChatBtn.style.width = '100%';
+            startChatBtn.style.cursor = 'pointer';
+            startChatBtn.style.fontWeight = 'bold';
+            startChatBtn.style.display = 'flex';
+            startChatBtn.style.alignItems = 'center';
+            startChatBtn.style.justifyContent = 'center';
+
+            var whatsappIcon = document.createElement('span');
+            whatsappIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
+            startChatBtn.prepend(whatsappIcon);
+
+            startChat.appendChild(startChatBtn);
+
+            // Toggle chat window when button is clicked
+            button.addEventListener('click', function () {
+                var isVisible = chatWindow.style.display === 'flex';
+                if (isVisible) {
+                    chatWindow.style.opacity = '0';
+                    chatWindow.style.transform = 'scale(0.9)';
+                    setTimeout(function () {
+                        chatWindow.style.display = 'none';
+                    }, 300);
+                } else {
+                    chatWindow.style.display = 'flex';
+                    setTimeout(function () {
+                        chatWindow.style.opacity = '1';
+                        chatWindow.style.transform = 'scale(1)';
+                    }, 10);
+                }
+            });
+
+            // Close chat window when close button is clicked
+            closeBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                chatWindow.style.opacity = '0';
+                chatWindow.style.transform = 'scale(0.9)';
+                setTimeout(function () {
+                    chatWindow.style.display = 'none';
+                }, 300);
+            });
+
+            // Open WhatsApp when start chat button is clicked
+            startChatBtn.addEventListener('click', function () {
+                var url = 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(welcomeMessage);
+                window.open(url, '_blank');
+            });
+        })();
+    </script>
+</body>
+
+</html>
