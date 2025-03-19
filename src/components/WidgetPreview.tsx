@@ -4,9 +4,10 @@ import icons from '../utils/icons'
 
 interface WidgetPreviewProps {
     selectedTemplate: string | null
+    position?: { bottom: number; right: number }
 }
 
-export default function WidgetPreview({ selectedTemplate }: WidgetPreviewProps) {
+export default function WidgetPreview({ selectedTemplate, position = { bottom: 20, right: 20 } }: WidgetPreviewProps) {
     const [isWidgetOpen, setIsWidgetOpen] = useState(false)
     const [animating, setAnimating] = useState(false)
     const [displayedTemplate, setDisplayedTemplate] = useState<string | null>(selectedTemplate)
@@ -36,8 +37,8 @@ export default function WidgetPreview({ selectedTemplate }: WidgetPreviewProps) 
 
     if (!selectedTemplate) {
         return (
-            <div className="flex items-center justify-center h-[450px] border-2 border-dashed border-border rounded-lg bg-muted">
-                <p className="text-muted-foreground font-medium">Select a template to preview</p>
+            <div className="flex items-center justify-center h-[450px] border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg bg-gray-100 dark:bg-gray-700">
+                <p className="text-gray-500 dark:text-gray-400 font-medium">Select a template to preview</p>
             </div>
         )
     }
@@ -47,7 +48,7 @@ export default function WidgetPreview({ selectedTemplate }: WidgetPreviewProps) 
     // Telegram Widget
     function renderTelegramWidget() {
         return (
-            <div className="w-full bg-card dark:bg-galaxyBg rounded-lg shadow-xl overflow-hidden max-h-[450px]">
+            <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden max-h-[450px]">
                 <div className="bg-blue-500 p-4 text-white">
                     <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -63,6 +64,7 @@ export default function WidgetPreview({ selectedTemplate }: WidgetPreviewProps) 
 
                 <div className="p-4 flex flex-col h-[350px] bg-white dark:bg-gray-800">
                     <div className="flex-1 overflow-y-auto hide-scrollbar space-y-3">
+                        {/* Message bubbles */}
                         <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 mb-3 max-w-[80%] border-l-4 border-blue-500 shadow-sm">
                             <p className="text-sm text-blue-800 dark:text-blue-200">Welcome to our support chat! How can we assist you today?</p>
                         </div>
@@ -98,7 +100,7 @@ export default function WidgetPreview({ selectedTemplate }: WidgetPreviewProps) 
     // WhatsApp Widget
     function renderWhatsAppWidget() {
         return (
-            <div className="w-full bg-card dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden max-h-[450px]">
+            <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden max-h-[450px]">
                 <div className="bg-green-500 p-4 text-white">
                     <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -114,17 +116,18 @@ export default function WidgetPreview({ selectedTemplate }: WidgetPreviewProps) 
 
                 <div className="p-4 flex flex-col h-[350px]">
                     <div className="flex-1 overflow-y-auto hide-scrollbar space-y-3">
-                        <div className="bg-muted dark:bg-gray-700 rounded-lg p-3 max-w-[80%] shadow-sm">
-                            <p className="text-sm text-foreground dark:text-gray-200">Greetings! And Welcome To Company Name! How May We Assist You Today?</p>
+                        {/* Message bubbles */}
+                        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 max-w-[80%] shadow-sm">
+                            <p className="text-sm text-gray-800 dark:text-gray-200">Greetings! And Welcome To Company Name! How May We Assist You Today?</p>
                         </div>
                     </div>
 
-                    <div className="mt-auto pt-3 border-t border-border dark:border-gray-700">
+                    <div className="mt-auto pt-3 border-t border-gray-200 dark:border-gray-700">
                         <div className="flex">
                             <input
                                 type="text"
                                 placeholder="Type your message..."
-                                className="flex-1 border border-border dark:border-gray-700 bg-background dark:bg-gray-900 text-foreground dark:text-white rounded-l-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 shadow-sm placeholder:text-muted-foreground"
+                                className="flex-1 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-white rounded-l-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 shadow-sm placeholder:text-gray-500 dark:placeholder:text-gray-400"
                             />
                             <button className="bg-green-500 text-white px-4 rounded-r-lg hover:bg-green-600 transition-colors shadow-sm flex items-center justify-center">
                                 <Send className="w-5 h-5" />
@@ -138,12 +141,13 @@ export default function WidgetPreview({ selectedTemplate }: WidgetPreviewProps) 
 
     // Floating Widget Button
     const floatingWidget = (
-        <div className="relative h-[500px] md:h-[94%] border rounded-lg bg-white dark:bg-galaxyBg flex items-center justify-center overflow-hidden shadow-inner">
+        <div className="relative h-[500px] md:h-[94%] border rounded-lg bg-white dark:bg-gray-900 flex items-center justify-center overflow-hidden shadow-inner">
             {/* Template container with animation classes */}
             <div className={`w-full h-full transition-all duration-300 ${animating ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}>
                 {/* Floating widget button */}
                 <div
-                    className={`absolute bottom-6 right-6 z-10 ${isWidgetOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-all duration-300`}
+                    className={`absolute z-10 ${isWidgetOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-all duration-300`}
+                    style={{ bottom: `${position.bottom}px`, right: `${position.right}px` }}
                 >
                     <button
                         onClick={() => setIsWidgetOpen(true)}
@@ -190,4 +194,4 @@ export default function WidgetPreview({ selectedTemplate }: WidgetPreviewProps) 
     )
 
     return floatingWidget
-} 
+}

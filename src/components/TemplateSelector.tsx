@@ -52,10 +52,10 @@ export default function TemplateSelector({ onSelect, selectedTemplate }: Templat
             return (
                 <div
                     key={activeTemplate.id}
-                    className="relative h-full border rounded-lg transition-all overflow-hidden shadow-lg border-primary"
+                    className="relative h-full border rounded-lg transition-all overflow-hidden shadow-lg border-blue-600"
                 >
-                    <div className="absolute top-2 right-2 bg-primary rounded-full p-1">
-                        <Check className="w-3 h-3 text-primary-foreground" />
+                    <div className="absolute top-2 right-2 bg-blue-600 rounded-full p-1">
+                        <Check className="w-3 h-3 text-white" />
                     </div>
                     <div className="h-full flex flex-col">
                         <div className="p-6 bg-green-100 dark:bg-green-950/30 flex-1">
@@ -65,11 +65,11 @@ export default function TemplateSelector({ onSelect, selectedTemplate }: Templat
                                 </div>
                                 <div className="ml-3">
                                     <span className="text-lg font-medium block text-gray-800 dark:text-gray-200">John</span>
-                                    <span className="text-xs text-muted-foreground">Online now</span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">Online now</span>
                                 </div>
                             </div>
 
-                            <div className="text-sm text-foreground space-y-2 mb-5">
+                            <div className="text-sm text-gray-800 dark:text-white space-y-2 mb-5">
                                 <p className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm inline-block dark:text-gray-200">Greetings! And Welcome To Company Name!</p>
                                 <p className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm inline-block dark:text-gray-200">How May We Assist You Today?</p>
                             </div>
@@ -94,10 +94,10 @@ export default function TemplateSelector({ onSelect, selectedTemplate }: Templat
         return (
             <div
                 key={activeTemplate.id}
-                className="relative h-full border rounded-lg transition-all overflow-hidden shadow-lg border-primary"
+                className="relative h-full border rounded-lg transition-all overflow-hidden shadow-lg border-blue-600"
             >
-                <div className="absolute top-2 right-2 bg-primary rounded-full p-1">
-                    <Check className="w-3 h-3 text-primary-foreground" />
+                <div className="absolute top-2 right-2 bg-blue-600 rounded-full p-1">
+                    <Check className="w-3 h-3 text-white" />
                 </div>
                 <div className="h-full flex flex-col">
                     <div className="p-6 bg-blue-50 dark:bg-blue-950/30 flex-1">
@@ -110,18 +110,18 @@ export default function TemplateSelector({ onSelect, selectedTemplate }: Templat
 
                         <div className="text-center space-y-2 mb-8">
                             <p className="font-medium text-xl text-gray-800 dark:text-gray-200">Telegram Integration</p>
-                            <p className="text-muted-foreground text-sm">Connect with Telegram</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">Connect with Telegram</p>
                         </div>
 
                         <div className="space-y-4 mb-6">
                             <div className="w-full p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-sm shadow-sm">
                                 <p className="text-blue-800 dark:text-blue-200">Get instant support via our Telegram channel</p>
                             </div>
-                            <div className="w-full flex items-center gap-2 p-3 border border-border rounded-lg shadow-sm bg-white dark:bg-gray-800">
+                            <div className="w-full flex items-center gap-2 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-800">
                                 <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
                                     <div dangerouslySetInnerHTML={{ __html: icons.telegram.icon }} />
                                 </div>
-                                <span className="text-foreground text-sm dark:text-gray-200">@username</span>
+                                <span className="text-gray-800 dark:text-gray-200 text-sm">@username</span>
                             </div>
                         </div>
 
@@ -148,17 +148,17 @@ export default function TemplateSelector({ onSelect, selectedTemplate }: Templat
             {/* Navigation arrows */}
             <button
                 onClick={handlePrevTemplate}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-card border border-border rounded-full p-2 shadow-lg hover:bg-muted transition-colors z-10"
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-10"
                 aria-label="Previous template"
             >
-                <ChevronLeft className="h-6 w-6 text-muted-foreground" />
+                <ChevronLeft className="h-6 w-6 text-gray-500 dark:text-gray-400" />
             </button>
             <button
                 onClick={handleNextTemplate}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-card border border-border rounded-full p-2 shadow-lg hover:bg-muted transition-colors z-10"
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-10"
                 aria-label="Next template"
             >
-                <ChevronRight className="h-6 w-6 text-muted-foreground" />
+                <ChevronRight className="h-6 w-6 text-gray-500 dark:text-gray-400" />
             </button>
 
             {/* Pagination indicator */}
@@ -166,11 +166,11 @@ export default function TemplateSelector({ onSelect, selectedTemplate }: Templat
                 {templates.map((template, index) => (
                     <div
                         key={template.id}
-                        className={`h-2 w-2 rounded-full transition-colors ${index === activeTemplateIndex ? 'bg-primary' : 'bg-muted'
+                        className={`h-2 w-2 rounded-full transition-colors ${index === activeTemplateIndex ? 'bg-blue-600' : 'bg-gray-100 dark:bg-gray-700'
                             }`}
                     />
                 ))}
             </div>
         </div>
     )
-} 
+}
