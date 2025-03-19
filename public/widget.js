@@ -5,9 +5,9 @@
  * to either Telegram or WhatsApp based on the provided parameters.
  * 
  * Usage:
- * <script src="script.js?platform=telegram&username=yourcompany"></script>
+ * <script src="script.js?platform=telegram&username=yourcompany&bottom=20&right=20"></script>
  * OR
- * <script src="script.js?platform=whatsapp&phone=1234567890"></script>
+ * <script src="script.js?platform=whatsapp&phone=1234567890&bottom=20&right=20"></script>
  */
 
 (function () {
@@ -29,6 +29,10 @@
   var welcomeMessage = params.message || 'Hello! I have a question about your services.';
   var title = params.title || (platform === 'telegram' ? 'Telegram Support' : 'WhatsApp Support');
   var subtitle = params.subtitle || 'Online now';
+  
+  // Position configuration (with defaults)
+  var bottomPosition = params.bottom || 20;
+  var rightPosition = params.right || 20;
 
   // Base URL for assets (same domain as the script)
   var baseUrl = scriptTag.src.split('?')[0].split('/').slice(0, -1).join('/');
@@ -39,12 +43,14 @@
   cssLink.href = baseUrl + '/widget.css';
   document.head.appendChild(cssLink);
 
-  // Set theme colors
+  // Set theme colors and position
   var style = document.createElement('style');
   style.textContent = `
     :root {
       --widget-color: ${platform === 'telegram' ? '#0088cc' : '#25D366'};
       --widget-hover-color: ${platform === 'telegram' ? '#0077b5' : '#20bc5c'};
+      --widget-bottom: ${bottomPosition}px;
+      --widget-right: ${rightPosition}px;
     }
   `;
   document.head.appendChild(style);

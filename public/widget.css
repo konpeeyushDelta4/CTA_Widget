@@ -42,8 +42,8 @@
 #telegram-chat-widget,
 #whatsapp-chat-widget {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: var(--widget-bottom, 20px);
+    right: var(--widget-right, 20px);
     z-index: 9999;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
