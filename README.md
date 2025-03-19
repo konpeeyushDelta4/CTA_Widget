@@ -4,10 +4,86 @@ A versatile widget generator that allows users to create customized chat widgets
 
 ## Features
 
-- Template selection for different messaging platforms
-- Customizable widget position
-- Contact information configuration
-- Integration script generation
+- **Platform Selection**: Choose between Telegram and WhatsApp for your chat widget
+- **Customizable Positioning**: Adjust the widget's position on your webpage with visual sliders
+- **Contact Information**: Configure your messaging account details 
+- **Preview**: Real-time preview of how your widget will appear on your website
+- **Copy-to-Clipboard**: One-click copy of the integration script
+- **Responsive Design**: Widget works on all device sizes
+- **Lightweight**: Minimal impact on page load performance
+
+## How to Use the Widget Generator
+
+1. **Select a Messaging Platform**
+   - Choose between Telegram or WhatsApp templates
+
+2. **Configure Widget Position**
+   - Use the sliders to adjust the widget's bottom and right position on your website
+
+3. **Enter Contact Information**
+   - For Telegram: Enter your Telegram username
+   - For WhatsApp: Select your country code and enter your phone number
+
+4. **Preview Your Widget**
+   - See a real-time preview of how the widget will look on your website
+
+5. **Copy the Integration Script**
+   - Click the "Copy Code" button to copy the integration script
+   - Paste the script into your website's HTML, just before the closing `</body>` tag
+
+## Integration Instructions
+
+### Basic Integration
+
+Add the generated script to your website's HTML just before the closing `</body>` tag:
+
+```html
+<!-- CTA Widget Integration -->
+<script>
+  (function() {
+    var script = document.createElement('script');
+    script.src = 'https://your-deployment-url.vercel.app/widget.js?platform=telegram&username=yourname&bottom=20&right=20';
+    script.async = true;
+    script.id = 'cta-chat-widget';
+    document.body.appendChild(script);
+  })();
+</script>
+```
+
+### Advanced Configuration
+
+The widget supports the following URL parameters:
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `platform` | Chat platform (`telegram` or `whatsapp`) | `telegram` |
+| `username` | Your Telegram username (when platform is telegram) | - |
+| `phone` | Your WhatsApp number with country code (when platform is whatsapp) | - |
+| `bottom` | Position from bottom of screen (px) | `20` |
+| `right` | Position from right of screen (px) | `20` |
+
+
+## Developer Information
+
+### Widget Architecture
+
+- The widget is built as a standalone JavaScript component
+- It creates an isolated UI container that doesn't interfere with the host website's styles
+- All assets are loaded dynamically
+- The widget is fully customizable through URL parameters
+
+### Technical Details
+
+- **Base Script**: `widget.js` - Main entry point
+- **Styling**: `widget.css` - Isolated styles for the widget
+- **Assets**: SVG icons loaded from `/assets/` directory
+- **Deployment**: Automatically deployed on Vercel
+
+### Customization Options for Developers
+
+- **Custom Styling**: Fork the repository and modify the `widget.css` file
+- **Additional Platforms**: Extend the platform support in `widget.js`
+- **Custom Behaviors**: Modify the widget initialization in `widget.js`
 
 ## Local Development
 
