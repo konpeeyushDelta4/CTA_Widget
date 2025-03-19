@@ -138,8 +138,13 @@ export const useNumberInput = () => {
         // Only use digits for the number part
         const digitsOnly = value;
 
-        // Format with country code
-        return `${selectedCountry.dial_code}${digitsOnly}`;
+        // Remove the plus sign from dial code if present to avoid double plus signs
+        const dialCode = selectedCountry.dial_code.startsWith('+')
+            ? selectedCountry.dial_code.substring(1)
+            : selectedCountry.dial_code;
+
+        // Format with country code, ensuring no spaces or special characters
+        return digitsOnly.length === 10 ? `${dialCode}${digitsOnly}` : '';
     };
 
     return {

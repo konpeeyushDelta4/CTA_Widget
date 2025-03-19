@@ -89,6 +89,11 @@ export default function ChatWidget() {
       config = `username=${telegramUsername}`;
     } else if (selectedTemplate === 'whatsapp') {
       config = `phone=${getFormattedNumber()}`;
+
+      // Add country code parameter if available
+      if (selectedCountry) {
+        config += `&country=${selectedCountry.code}`;
+      }
     }
 
     // Add position parameters
@@ -175,7 +180,7 @@ export default function ChatWidget() {
                             onClick={toggleCountryDropdown}
                             className="flex items-center px-3 py-2.5 text-sm bg-gray-50 dark:bg-gray-800 border border-r-0 border-gray-200/80 dark:border-gray-700/80 rounded-l-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                           >
-                            <span className="mr-1 text-base">{selectedCountry?.flag || "🌍"}</span>
+                            <span className="mr-1 text-base noto-color-emoji-regular">{selectedCountry?.flag || "🌍"}</span>
                             <span className="mr-1 text-gray-800 dark:text-gray-200">{selectedCountry?.dial_code || "+1"}</span>
                             {isCountryDropdownOpen ? (
                               <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -209,7 +214,7 @@ export default function ChatWidget() {
                                         toggleCountryDropdown();
                                       }}
                                     >
-                                      <span className="mr-2 text-base">{country.flag}</span>
+                                      <span className="mr-2 text-base noto-color-emoji-regular">{country.flag}</span>
                                       <span className="mr-2 text-gray-800 dark:text-gray-200">{country.name}</span>
                                       <span className="text-gray-500 dark:text-gray-400">{country.dial_code}</span>
                                     </button>

@@ -7,7 +7,18 @@
  * Usage:
  * <script src="script.js?platform=telegram&username=yourcompany&bottom=20&right=20"></script>
  * OR
- * <script src="script.js?platform=whatsapp&phone=1234567890&bottom=20&right=20"></script>
+ * <script src="script.js?platform=whatsapp&phone=1234567890&country=US&bottom=20&right=20"></script>
+ * 
+ * Parameters:
+ * - platform: 'telegram' or 'whatsapp' (default: 'telegram')
+ * - username: Telegram username (for telegram platform)
+ * - phone: WhatsApp phone number (for whatsapp platform)
+ * - country: Two-letter country code (for whatsapp platform, e.g. 'US', 'GB', 'IN')
+ * - message: Default message to send (default: 'Hello! I have a question about your services.')
+ * - title: Widget title text (default depends on platform)
+ * - subtitle: Widget subtitle text (default: 'Online now')
+ * - bottom: Position from bottom in pixels (default: 20)
+ * - right: Position from right in pixels (default: 20)
  */
 
 (function () {
@@ -23,12 +34,41 @@
     });
   }
 
+  // Helper function to convert country code to flag emoji
+  function countryCodeToFlag(countryCode) {
+    if (!countryCode) return '🌎'; // Default globe emoji
+
+    // Convert country code to regional indicator symbols
+    // Each letter A-Z is represented by a Unicode Regional Indicator Symbol
+    // A = 0x1F1E6, B = 0x1F1E7, etc.
+    const baseCharCode = 0x1F1E6; // Regional Indicator Symbol Letter A
+    const baseAscii = 'A'.charCodeAt(0);
+
+    // Convert the two-letter country code to uppercase for consistency
+    const code = countryCode.toUpperCase();
+
+    if (code.length !== 2 || !/^[A-Z]{2}$/.test(code)) {
+      return '🌎'; // Return default emoji for invalid codes
+    }
+
+    // Convert each letter to the corresponding regional indicator symbol
+    const firstChar = code.charCodeAt(0) - baseAscii + baseCharCode;
+    const secondChar = code.charCodeAt(1) - baseAscii + baseCharCode;
+
+    // Combine the two regional indicator symbols to form the flag
+    return String.fromCodePoint(firstChar) + String.fromCodePoint(secondChar);
+  }
+
   // Configuration
   var platform = params.platform || 'telegram';
   var contactInfo = platform === 'telegram' ? params.username || 'yourcompany' : params.phone || '1234567890';
   var welcomeMessage = params.message || 'Hello! I have a question about your services.';
   var title = params.title || (platform === 'telegram' ? 'Telegram Support' : 'WhatsApp Support');
   var subtitle = params.subtitle || 'Online now';
+
+  // Get country code if provided (for WhatsApp)
+  var countryCode = params.country || '';
+  var flagEmoji = countryCodeToFlag(countryCode);
 
   // Position configuration (with defaults)
   var bottomPosition = parseInt(params.bottom || 20);
@@ -285,6 +325,16 @@
     var titleEl = document.createElement('p');
     titleEl.className = 'header-text-title';
     titleEl.textContent = title;
+
+    // Add country flag if available
+    if (countryCode) {
+      var flagSpan = document.createElement('span');
+      flagSpan.className = 'noto-color-emoji-regular';
+      flagSpan.textContent = ' ' + flagEmoji;
+      flagSpan.style.marginLeft = '5px';
+      titleEl.appendChild(flagSpan);
+    }
+
     var subtitleEl = document.createElement('p');
     subtitleEl.className = 'header-text-subtitle';
     subtitleEl.textContent = subtitle;
@@ -304,6 +354,16 @@
     chatBody.className = 'chat-body whatsapp-chat-body';
     chatWindow.appendChild(chatBody);
 
+    // Format the phone number nicely for display
+    var formattedPhone = phoneNumber;
+    if (countryCode) {
+      // Add country code and format with spaces for better readability
+      // This assumes the phone parameter doesn't include country code
+      if (!phoneNumber.startsWith('+')) {
+        formattedPhone = '+' + phoneNumber;
+      }
+    }
+
     // Add initial message
     var initialMessage = document.createElement('div');
     initialMessage.className = 'chat-message whatsapp-message';
@@ -312,6 +372,17 @@
     initialMessage.appendChild(messageText);
     chatBody.appendChild(initialMessage);
 
+    // Add phone number message
+    var phoneMessage = document.createElement('div');
+    phoneMessage.className = 'chat-message whatsapp-message';
+    var phoneText = document.createElement('p');
+    phoneText.innerHTML = 'You can reach us on WhatsApp: <strong>' + formattedPhone + '</strong>';
+    if (countryCode) {
+      phoneText.innerHTML += ' ' + flagEmoji;
+    }
+    phoneMessage.appendChild(phoneText);
+    chatBody.appendChild(phoneMessage);
+
     // Add start chat button
     var startChat = document.createElement('div');
     startChat.className = 'start-chat-area';
@@ -319,7 +390,14 @@
 
     var startChatBtn = document.createElement('button');
     startChatBtn.className = 'start-chat-button';
-    startChatBtn.textContent = 'Start Chat with WhatsApp';
+
+    // Add flag to button if available
+    if (countryCode) {
+      startChatBtn.innerHTML = '<span class="noto-color-emoji-regular" style="margin-right: 5px;">' + flagEmoji + '</span> ';
+      startChatBtn.innerHTML += 'Start Chat with WhatsApp';
+    } else {
+      startChatBtn.textContent = 'Start Chat with WhatsApp';
+    }
 
     var whatsappIcon = document.createElement('span');
     whatsappIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
@@ -354,7 +432,19 @@
 
     // Open WhatsApp when start chat button is clicked
     startChatBtn.addEventListener('click', function () {
-      var url = 'https://wa.me/' + phoneNumber + '?text=' + encodeURIComponent(welcomeMessage || 'Hello! I have a question about your services.');
+      var fullNumber = phoneNumber;
+
+      // Make sure the phone number has the proper format for WhatsApp
+      // WhatsApp requires the number in international format without any special characters
+      if (countryCode && !phoneNumber.includes(countryCode)) {
+        // If countryCode is not part of the phone number, add it
+        fullNumber = countryCode + phoneNumber.replace(/[^0-9]/g, '');
+      } else {
+        // Otherwise just clean the number of any non-numeric characters
+        fullNumber = phoneNumber.replace(/[^0-9]/g, '');
+      }
+
+      var url = 'https://wa.me/' + fullNumber + '?text=' + encodeURIComponent(welcomeMessage || 'Hello! I have a question about your services.');
       window.open(url, '_blank');
     });
   }
