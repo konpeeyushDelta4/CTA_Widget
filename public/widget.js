@@ -29,10 +29,28 @@
   var welcomeMessage = params.message || 'Hello! I have a question about your services.';
   var title = params.title || (platform === 'telegram' ? 'Telegram Support' : 'WhatsApp Support');
   var subtitle = params.subtitle || 'Online now';
-  
+
   // Position configuration (with defaults)
-  var bottomPosition = params.bottom || 20;
-  var rightPosition = params.right || 20;
+  var bottomPosition = parseInt(params.bottom || 20);
+  var rightPosition = parseInt(params.right || 20);
+
+  // Set proper transform origin based on position
+  var setTransformOrigin = function (element) {
+    // Default to bottom right, but adjust if widget is positioned differently
+    var origin = 'bottom right';
+
+    // If widget is positioned at the top half of the viewport
+    if (bottomPosition > window.innerHeight / 2) {
+      origin = 'top right';
+    }
+
+    // If widget is positioned at the left half of the viewport
+    if (rightPosition > window.innerWidth / 2) {
+      origin = origin.replace('right', 'left');
+    }
+
+    element.style.transformOrigin = origin;
+  };
 
   // Base URL for assets (same domain as the script)
   var baseUrl = scriptTag.src.split('?')[0].split('/').slice(0, -1).join('/');
@@ -101,6 +119,10 @@
     var chatWindow = document.createElement('div');
     chatWindow.className = 'chat-window';
     chatWindow.style.display = 'none'; // This is necessary for the toggle functionality
+
+    // Apply transform origin based on widget position
+    setTransformOrigin(chatWindow);
+
     container.appendChild(chatWindow);
 
     // Create chat header
@@ -238,6 +260,10 @@
     var chatWindow = document.createElement('div');
     chatWindow.className = 'chat-window';
     chatWindow.style.display = 'none'; // This is necessary for the toggle functionality
+
+    // Apply transform origin based on widget position
+    setTransformOrigin(chatWindow);
+
     container.appendChild(chatWindow);
 
     // Create chat header
