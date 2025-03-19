@@ -7,6 +7,7 @@ import PositionSlider from './PositionSlider'
 import { Clipboard, Check, X, Copy, ChevronDown, ChevronUp } from 'lucide-react'
 import { useCopy, useNumberInput } from '../hooks'
 import { countryCodes } from '../utils/countryCode'
+import { env } from '../utils/env'
 
 export default function ChatWidget() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
@@ -97,7 +98,7 @@ export default function ChatWidget() {
 <script>
   (function() {
     var script = document.createElement('script');
-    script.src = 'http://localhost:4173/widget.js?platform=${platform}&${config}${positionConfig}';
+    script.src = '${env.baseUrl}/widget.js?platform=${platform}&${config}${positionConfig}';
     script.async = true;
     script.id = 'cta-chat-widget';
     document.body.appendChild(script);
