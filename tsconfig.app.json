@@ -26,6 +26,7 @@
   },
   "include": [
     "src",
-    "public/script.js"
+    "public/widget.js",
+    "src/utils/icons.ts"
   ]
 }

@@ -8,17 +8,20 @@
 </head>
 
 <body>
-  <script>
-    //TODO: change src
+
+  <!-- CTA Widget Integration -->
+<script>
+  (function() {
+    var script = document.createElement('script');
+    script.src = 'http://localhost:4173/widget.js?platform=telegram&username=konpeeyush';
+    script.async = true;
+    script.id = 'cta-chat-widget';
+    document.body.appendChild(script);
+  })();
+</script>
 
 
-    (function () {
-      var script = document.createElement("script");
-      script.src = "http://localhost:4174/script.js";
-      script.id = "cta-chat-widget";
-      document.body.appendChild(script);
-    })();
-  </script>
+
 </body>
 
 </html>

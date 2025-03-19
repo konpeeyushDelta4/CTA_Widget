@@ -1,11 +1,9 @@
-import ChatWidget from './components/ChatWidget'
 
+import ChatWidget from './components/ChatWidget'
 const App = () => {
-  return (
-    <div>
-      <ChatWidget />
-    </div>
-  )
+    return (
+        <ChatWidget />
+    )
 }
 
 export default App

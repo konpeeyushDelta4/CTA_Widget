@@ -1,0 +1,233 @@
+/* Widget Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* Base Widget Styles */
+#telegram-chat-widget,
+#whatsapp-chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Widget Button */
+.widget-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--widget-color);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: pulse 2s infinite;
+    transition: all 0.3s ease;
+}
+
+.widget-button:hover {
+    transform: scale(1.1);
+    background-color: var(--widget-hover-color) !important;
+}
+
+/* Chat Window */
+.chat-window {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    width: 320px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.chat-window.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Chat Header */
+.chat-header {
+    background-color: var(--widget-color);
+    color: #fff;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+}
+
+.header-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-text {
+    margin-left: 10px;
+}
+
+.header-text-title {
+    margin: 0;
+    font-weight: bold;
+}
+
+.header-text-subtitle {
+    margin: 0;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.close-button {
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 4px;
+}
+
+/* Chat Body */
+.chat-body {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+    background-color: #f4f4f4;
+}
+
+.whatsapp-chat-body {
+    background-color: #ECE5DD;
+    height: 260px;
+}
+
+/* Chat Messages */
+.chat-message {
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    max-width: 80%;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.telegram-message {
+    background-color: #e3f2fd;
+    border-left: 4px solid var(--widget-color);
+}
+
+.telegram-message p {
+    margin: 0;
+    color: #0d47a1;
+}
+
+.whatsapp-message {
+    background-color: #DCF8C6;
+}
+
+.whatsapp-message p {
+    margin: 0;
+    color: #303030;
+}
+
+.user-message {
+    background-color: #e0e0e0;
+    margin-left: auto;
+    color: #333;
+}
+
+/* Input Area */
+.input-area {
+    padding: 10px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 24px 0 0 24px;
+    outline: none;
+}
+
+.send-button {
+    background-color: var(--widget-color);
+    border: none;
+    border-radius: 0 24px 24px 0;
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+/* WhatsApp Start Chat Area */
+.start-chat-area {
+    padding: 16px;
+    border-top: 1px solid #E0E0E0;
+    background-color: #f5f5f5;
+}
+
+.start-chat-button {
+    background-color: var(--widget-color);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 12px 16px;
+    width: 100%;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

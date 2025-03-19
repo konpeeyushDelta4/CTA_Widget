@@ -1,8 +1,9 @@
+'use client'
+
 import { useState, useRef, useEffect } from 'react'
 import TemplateSelector from './TemplateSelector'
 import WidgetPreview from './WidgetPreview'
 import { Clipboard, Check, X, Copy, ChevronDown, ChevronUp } from 'lucide-react'
-import { generateWidgetScript, getIntegrationInstructions } from '../utils/index'
 import { useCopy, useNumberInput } from '../hooks'
 import { countryCodes } from '../utils/countryCode'
 
@@ -35,15 +36,6 @@ export default function ChatWidget() {
     selectedCountry,
     handleCountryChange
   } = useNumberInput()
-
-  // Handle contact info changes from TemplateSelector
-  const handleContactInfoChange = (key: string, value: string) => {
-    if (key === 'telegramUsername') {
-      setTelegramUsername(value)
-    } else if (key === 'whatsappNumber') {
-      handleWhatsappNumberChange({ target: { value } } as React.ChangeEvent<HTMLInputElement>)
-    }
-  }
 
   // Close country dropdown when clicking outside
   useEffect(() => {
@@ -84,19 +76,29 @@ export default function ChatWidget() {
     return false;
   }
 
-  const generateWidgetScriptForSelectedTemplate = () => {
-    if (!selectedTemplate) return ''
+  const generateIntegrationScript = () => {
+    if (!selectedTemplate) return '';
 
-    // Prepare contact info based on the selected template
-    const contactInfo = {
-      telegramUsername: telegramUsername || undefined,
-      whatsappNumber: selectedTemplate === 'whatsapp' ? getFormattedNumber() : undefined
+    const platform = selectedTemplate;
+    let config = '';
+
+    if (selectedTemplate === 'telegram') {
+      config = `username=${telegramUsername}`;
+    } else if (selectedTemplate === 'whatsapp') {
+      config = `phone=${getFormattedNumber()}`;
     }
 
-    return generateWidgetScript(selectedTemplate as 'telegram' | 'whatsapp', contactInfo)
-  }
-
-  const instructions = getIntegrationInstructions()
+    return `<!-- CTA Widget Integration -->
+<script>
+  (function() {
+    var script = document.createElement('script');
+    script.src = 'http://localhost:4173/widget.js?platform=${platform}&${config}';
+    script.async = true;
+    script.id = 'cta-chat-widget';
+    document.body.appendChild(script);
+  })();
+</script>`;
+  };
 
   return (
     <main className="min-h-screen bg-background">
@@ -112,11 +114,6 @@ export default function ChatWidget() {
             <TemplateSelector
               onSelect={setSelectedTemplate}
               selectedTemplate={selectedTemplate}
-              contactInfo={{
-                telegramUsername: telegramUsername,
-                whatsappNumber: whatsappNumber
-              }}
-              onContactInfoChange={handleContactInfoChange}
             />
 
             {selectedTemplate ? (
@@ -265,44 +262,51 @@ export default function ChatWidget() {
 
       {/* Script Generation Modal */}
       {scriptVisible && selectedTemplate && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-card rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center bg-muted/30">
-              <h3 className="text-xl font-semibold text-card-foreground">Integration Script</h3>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="bg-card rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col animate-in fade-in-50 slide-in-from-bottom-10 duration-300">
+            <div className="p-5 border-b flex justify-between items-center bg-muted/30">
+              <h3 className="text-xl font-bold text-card-foreground">Integration Script</h3>
               <button
                 onClick={() => setScriptVisible(false)}
-                className="bg-red-500 p-2 rounded-full hover:bg-red-600 transition-colors flex items-center justify-center"
+                className="bg-red-500/90 hover:bg-red-600 p-2 rounded-full transition-colors flex items-center justify-center transform hover:rotate-90 transition-transform duration-200"
               >
                 <X className="w-5 h-5 text-white" strokeWidth={2.5} />
               </button>
             </div>
 
-            <div className="p-4 overflow-auto flex-grow">
-              <p className="mb-4 text-muted-foreground">
-                Copy and paste this script into your website's HTML code, preferably just before the closing <code className="bg-muted px-1 py-0.5 rounded text-sm">&lt;/body&gt;</code> tag:
-              </p>
-              <pre className="bg-galaxyBg text-gray-100 p-4 rounded-lg overflow-x-auto text-sm max-h-80 whitespace-pre-wrap">
-                {generateWidgetScriptForSelectedTemplate()}
-              </pre>
+            <div className="p-6 overflow-auto flex-grow">
+              <div className="bg-muted/20 rounded-lg border border-border/60 p-4 mb-6">
+                <p className="mb-4 text-card-foreground">
+                  Copy and paste this script into your website's HTML code, preferably just before the closing <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary">&lt;/body&gt;</code> tag:
+                </p>
+                <pre className="bg-[#0f172a] text-gray-100 p-5 rounded-lg overflow-x-auto text-sm max-h-80 whitespace-pre-wrap font-mono shadow-inner border border-slate-700">
+                  {generateIntegrationScript()}
+                </pre>
+              </div>
 
-              <div className="mt-6 bg-muted/50 p-4 rounded-lg border border-border">
-                <h4 className="font-medium mb-2 text-foreground">{instructions.title}</h4>
-                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground mb-3">
-                  {instructions.steps.map((step, index) => (
-                    <li key={index}>{step}</li>
-                  ))}
+              <div className="bg-muted/50 p-5 rounded-xl border border-border/60">
+                <h4 className="font-semibold mb-3 text-foreground flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Important Notes
+                </h4>
+                <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground mb-4 ml-2">
+                  <li className="pl-1">This script will load our widget from the server</li>
+                  <li className="pl-1">The rest of the widget configuration is handled automatically</li>
+                  <li className="pl-1">You only need to provide the platform and contact information</li>
                 </ol>
-                <p className="text-xs text-muted-foreground">{instructions.notes}</p>
+                <p className="text-xs text-muted-foreground bg-primary/5 p-3 rounded-lg border border-primary/10">The widget will automatically adapt to your website's design and color scheme. For advanced customization options, please contact our support team.</p>
               </div>
             </div>
 
-            <div className="p-4 border-t bg-muted/30 flex justify-between items-center">
+            <div className="p-5 border-t bg-muted/30 flex justify-between items-center">
               <span className="text-sm text-muted-foreground">
                 Ready to integrate with your website
               </span>
               <button
-                onClick={() => copyToClipboard(generateWidgetScriptForSelectedTemplate())}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md flex items-center text-sm font-medium transition-colors"
+                onClick={() => copyToClipboard(generateIntegrationScript())}
+                className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-primary-foreground px-5 py-2.5 rounded-lg flex items-center text-sm font-medium transition-colors"
               >
                 {copied ? (
                   <>
