@@ -2,6 +2,10 @@
 
 A versatile widget generator that allows users to create customized chat widgets for Telegram and WhatsApp integration into websites.
 
+
+https://github.com/user-attachments/assets/6063d8c6-1b07-461c-b071-cafb1d87fe11
+
+
 ## Features
 
 - **Platform Selection**: Choose between Telegram and WhatsApp for your chat widget
