@@ -6,7 +6,8 @@ export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current directory
   const env = loadEnv(mode, process.cwd(), '')
 
-  const port = env.VITE_PORT ? parseInt(env.VITE_PORT) : 4173
+  const port = env.VITE_PORT ? parseInt(env.VITE_PORT) : 5173
+  const previewPort = env.VITE_PREVIEW_PORT ? parseInt(env.VITE_PREVIEW_PORT) : 4173
   const host = env.VITE_HOST || 'localhost'
 
   return {
@@ -17,7 +18,7 @@ export default defineConfig(({ mode }) => {
     },
     preview: {
       host,
-      port,
+      port: previewPort,
     },
   }
 })

@@ -4,6 +4,7 @@ import WidgetPreview from '../components/WidgetPreview'
 import PositionSlider from '../components/PositionSlider'
 import { Copy, Check } from 'lucide-react'
 import { useWidgetScript } from '../hooks'
+import { env } from '../utils/env'
 
 interface TelegramTemplateData {
     variant: number
@@ -58,7 +59,7 @@ function TelegramTemplate() {
         async function fetchTemplateData() {
             try {
                 setIsLoading(true)
-                const response = await fetch('http://localhost:4173/config/templates/telegram/telegram-template.json')
+                const response = await fetch(`${env.baseUrl}/config/templates/telegram/telegram-template.json`)
                 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch template: ${response.status}`)

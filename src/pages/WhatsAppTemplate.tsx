@@ -5,7 +5,7 @@ import PositionSlider from '../components/PositionSlider'
 import { ChevronDown, ChevronUp, Copy, Check } from 'lucide-react'
 import { countryCodes } from '../utils/countryCode'
 import { useWidgetScript } from '../hooks'
-
+import { env } from '../utils/env'
 interface WhatsAppTemplateData {
     variant: number
     platformSpecific: {
@@ -66,7 +66,7 @@ function WhatsAppTemplate() {
         async function fetchTemplateData() {
             try {
                 setIsLoading(true)
-                const response = await fetch('http://localhost:4173/config/templates/whatsapp/whatsapp-template.json')
+                const response = await fetch(`${env.baseUrl}/config/templates/whatsapp/whatsapp-template.json`)
                 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch template: ${response.status}`)

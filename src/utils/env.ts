@@ -1,6 +1,7 @@
 export interface EnvConfig {
     baseUrl: string
     port: number
+    buildPort: number
     isDev: boolean
 }
 
@@ -15,13 +16,17 @@ function getEnvConfig(): EnvConfig {
     if (isDev) {
         const port = import.meta.env.VITE_PORT
             ? parseInt(import.meta.env.VITE_PORT as string, 10)
-            : 4173
+            : 5173
 
+        const buildPort = import.meta.env.VITE_BUILD_PORT
+            ? parseInt(import.meta.env.VITE_BUILD_PORT as string, 10)
+            : 4173
         const host = import.meta.env.VITE_HOST || 'localhost'
 
         return {
             baseUrl: `http://${host}:${port}`,
             port,
+            buildPort,
             isDev
         }
     }
@@ -32,6 +37,7 @@ function getEnvConfig(): EnvConfig {
     return {
         baseUrl: prodUrl,
         port: 443, // Standard HTTPS port
+        buildPort: 443,
         isDev
     }
 }

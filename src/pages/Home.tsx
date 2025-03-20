@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { env } from '../utils/env'
 
 interface Template {
     id: string
@@ -27,7 +28,7 @@ function Home() {
         async function fetchTemplates() {
             try {
                 setIsLoading(true)
-                const response = await fetch('http://localhost:4173/config/templates/allTemplates.json')
+                const response = await fetch(`${env.baseUrl}/config/templates/allTemplates.json`)
 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch templates: ${response.status}`)

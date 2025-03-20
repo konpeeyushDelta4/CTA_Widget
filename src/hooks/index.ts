@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { CountryCode, countryCodes } from '../utils/countryCode';
+import { env } from '../utils/env';
 
 export const useCopy = () => {
     const [copied, setCopied] = useState(false);
@@ -90,7 +91,7 @@ export const useWidgetScript = () => {
 <script>
 (function() {
     var script = document.createElement('script');
-    script.src = 'https://your-deployment-url.vercel.app/widget.js?platform=whatsapp&phone=${fullPhoneNumber}&bottom=${position.bottom}&right=${position.right}';
+    script.src = '${env.baseUrl}/widget.js?platform=whatsapp&phone=${fullPhoneNumber}&bottom=${position.bottom}&right=${position.right}';
     script.async = true;
     script.id = 'cta-chat-widget';
     document.body.appendChild(script);
@@ -104,7 +105,7 @@ export const useWidgetScript = () => {
 <script>
 (function() {
     var script = document.createElement('script');
-    script.src = 'https://your-deployment-url.vercel.app/widget.js?platform=telegram&username=${username}&bottom=${position.bottom}&right=${position.right}';
+    script.src = '${env.baseUrl}/widget.js?platform=telegram&username=${username}&bottom=${position.bottom}&right=${position.right}';
     script.async = true;
     script.id = 'cta-chat-widget';
     document.body.appendChild(script);
