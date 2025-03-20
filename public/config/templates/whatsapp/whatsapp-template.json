@@ -1,0 +1,63 @@
+{
+    "variant": 1,
+    "platformSpecific": {
+        "name": "WhatsApp Support",
+        "color": "#25D366",
+        "hoverColor": "#20bc5c",
+        "iconPath": "/assets/whatsapp-icon.svg"
+    },
+    "dataFields": [
+        {
+            "dataType": "number",
+            "label": "Phone Number",
+            "name": "phone",
+            "placeholder": "Enter your phone number",
+            "required": true
+        },
+        {
+            "dataType": "select",
+            "label": "Country Code",
+            "name": "country",
+            "placeholder": "Select your country",
+            "required": true
+        },
+        {
+            "dataType": "text",
+            "label": "Welcome Message",
+            "name": "welcomeMessage",
+            "placeholder": "Enter your welcome message",
+            "defaultValue": "Hello! I have a question about your services.",
+            "required": true
+        },
+        {
+            "dataType": "text",
+            "label": "Title",
+            "name": "title",
+            "placeholder": "Enter widget title",
+            "defaultValue": "WhatsApp Support",
+            "required": false
+        },
+        {
+            "dataType": "text",
+            "label": "Subtitle",
+            "name": "subtitle",
+            "placeholder": "Enter widget subtitle",
+            "defaultValue": "Online now",
+            "required": false
+        }
+    ],
+    "messages": {
+        "initial": [
+            "Greetings! And Welcome To Our Support! How May We Assist You Today?",
+            "You can reach us on WhatsApp: {phone} {flag}"
+        ],
+        "buttonText": "Start Chat with WhatsApp"
+    },
+    "validation": {
+        "phone": {
+            "minLength": 5,
+            "maxLength": 15,
+            "allowedChars": "0-9+"
+        }
+    }
+}

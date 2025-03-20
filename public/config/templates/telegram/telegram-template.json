@@ -1,0 +1,57 @@
+{
+    "name": "Telegram Support",
+    "variant": 1,
+    "platformSpecific": {
+        "name": "Telegram Support",
+        "color": "#0088cc",
+        "hoverColor": "#0077b5",
+        "iconPath": "/assets/telegram-icon.svg"
+    },
+    "dataFields": [
+        {
+            "dataType": "text",
+            "label": "Username",
+            "name": "username",
+            "placeholder": "Enter your Telegram username",
+            "required": true
+        },
+        {
+            "dataType": "text",
+            "label": "Welcome Message",
+            "name": "welcomeMessage",
+            "placeholder": "Enter your welcome message",
+            "defaultValue": "Welcome to our support chat! How can we assist you today?",
+            "required": false
+        },
+        {
+            "dataType": "text",
+            "label": "Title",
+            "name": "title",
+            "placeholder": "Enter widget title",
+            "defaultValue": "Telegram Support",
+            "required": false
+        },
+        {
+            "dataType": "text",
+            "label": "Subtitle",
+            "name": "subtitle",
+            "placeholder": "Enter widget subtitle",
+            "defaultValue": "Company Support",
+            "required": false
+        }
+    ],
+    "messages": {
+        "initial": [
+            "Welcome to our support chat! How can we assist you today?"
+        ],
+        "inputPlaceholder": "Type your message...",
+        "sendButtonText": "Send"
+    },
+    "validation": {
+        "username": {
+            "minLength": 5,
+            "maxLength": 32,
+            "allowedChars": "a-zA-Z0-9_"
+        }
+    }
+}

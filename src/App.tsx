@@ -1,4 +1,7 @@
-import ChatWidget from './components/ChatWidget'
+import { Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import WhatsAppTemplate from './pages/WhatsAppTemplate'
+import TelegramTemplate from './pages/TelegramTemplate'
 
 const App = () => {
     return (
@@ -20,7 +23,13 @@ const App = () => {
 
                 {/* Main content */}
                 <main className="pb-20 pt-4">
-                    <ChatWidget />
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/whatsapp/:slug" element={<WhatsAppTemplate />} />
+                        <Route path="/telegram/:slug" element={<TelegramTemplate />} />
+                        {/* Default fallback to the home page */}
+                        <Route path="*" element={<Home />} />
+                    </Routes>
                 </main>
 
                 {/* Footer area */}

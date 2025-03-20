@@ -34,6 +34,22 @@
     });
   }
 
+  // Base URL for assets (same domain as the script)
+  var baseUrl = scriptTag.src.split('?')[0].split('/').slice(0, -1).join('/');
+
+  // Configuration paths
+  var configPaths = {
+    global: baseUrl + '/config/templates/widget-config.json',
+    whatsapp: baseUrl + '/config/templates/whatsapp/whatsapp-template.json',
+    telegram: baseUrl + '/config/templates/telegram/telegram-template.json'
+  };
+
+  // Global configuration object
+  var config = {
+    global: {},
+    template: {}
+  };
+
   // Helper function to convert country code to flag emoji
   function countryCodeToFlag(countryCode) {
     if (!countryCode) return '🌎'; // Default globe emoji
@@ -59,64 +75,50 @@
     return String.fromCodePoint(firstChar) + String.fromCodePoint(secondChar);
   }
 
-  // Configuration
-  var platform = params.platform || 'telegram';
-  var contactInfo = platform === 'telegram' ? params.username || 'yourcompany' : params.phone || '1234567890';
-  var welcomeMessage = params.message || 'Hello! I have a question about your services.';
-  var title = params.title || (platform === 'telegram' ? 'Telegram Support' : 'WhatsApp Support');
-  var subtitle = params.subtitle || 'Online now';
-
-  // Get country code if provided (for WhatsApp)
-  var countryCode = params.country || '';
-  var flagEmoji = countryCodeToFlag(countryCode);
-
-  // Position configuration (with defaults)
-  var bottomPosition = parseInt(params.bottom || 20);
-  var rightPosition = parseInt(params.right || 20);
+  // Fetch JSON configuration files
+  function fetchConfig(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          try {
+            var responseData = JSON.parse(xhr.responseText);
+            callback(null, responseData);
+          } catch (e) {
+            callback(new Error('Invalid JSON: ' + e.message), null);
+          }
+        } else {
+          // If config file not found, continue with defaults
+          callback(new Error('Failed to load config: ' + xhr.status), null);
+        }
+      }
+    };
+    xhr.send();
+  }
 
   // Set proper transform origin based on position
-  var setTransformOrigin = function (element) {
+  var setTransformOrigin = function (element, bottomPos, rightPos) {
     // Default to bottom right, but adjust if widget is positioned differently
     var origin = 'bottom right';
 
     // If widget is positioned at the top half of the viewport
-    if (bottomPosition > window.innerHeight / 2) {
+    if (bottomPos > window.innerHeight / 2) {
       origin = 'top right';
     }
 
     // If widget is positioned at the left half of the viewport
-    if (rightPosition > window.innerWidth / 2) {
+    if (rightPos > window.innerWidth / 2) {
       origin = origin.replace('right', 'left');
     }
 
     element.style.transformOrigin = origin;
   };
 
-  // Base URL for assets (same domain as the script)
-  var baseUrl = scriptTag.src.split('?')[0].split('/').slice(0, -1).join('/');
-
-  // Load CSS
-  var cssLink = document.createElement('link');
-  cssLink.rel = 'stylesheet';
-  cssLink.href = baseUrl + '/widget.css';
-  document.head.appendChild(cssLink);
-
-  // Set theme colors and position
-  var style = document.createElement('style');
-  style.textContent = `
-    :root {
-      --widget-color: ${platform === 'telegram' ? '#0088cc' : '#25D366'};
-      --widget-hover-color: ${platform === 'telegram' ? '#0077b5' : '#20bc5c'};
-      --widget-bottom: ${bottomPosition}px;
-      --widget-right: ${rightPosition}px;
-    }
-  `;
-  document.head.appendChild(style);
-
   // Load platform icon
-  function loadIcon(callback) {
+  function loadIcon(iconPath, callback) {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', baseUrl + '/assets/' + platform + '-icon.svg', true);
+    xhr.open('GET', baseUrl + iconPath, true);
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
         callback(xhr.responseText);
@@ -126,23 +128,113 @@
           telegram: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>',
           whatsapp: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>'
         };
+
+        // Use the platform as fallback if iconPath doesn't contain the platform name
+        var platform = params.platform || 'telegram';
         callback(fallbackIcons[platform]);
       }
     };
     xhr.send();
   }
 
-  // Determine which widget to create
-  loadIcon(function (icon) {
-    if (platform === 'telegram') {
-      createTelegramWidget(contactInfo, title, subtitle, icon);
-    } else if (platform === 'whatsapp') {
-      createWhatsAppWidget(contactInfo, title, subtitle, welcomeMessage, icon);
-    }
-  });
+  // Initialize widget based on configuration
+  function initWidget() {
+    // Load global configuration
+    fetchConfig(configPaths.global, function (err, globalConfig) {
+      if (!err && globalConfig) {
+        config.global = globalConfig;
+      }
+
+      // Platform (default to telegram if not specified)
+      var platform = params.platform || 'telegram';
+
+      // Load template-specific configuration
+      fetchConfig(configPaths[platform], function (err, templateConfig) {
+        if (!err && templateConfig) {
+          config.template = templateConfig;
+        }
+
+        // Initialize widget with merged configuration
+        setupWidget(platform);
+      });
+    });
+  }
+
+  function setupWidget(platform) {
+    // Extract configuration values with fallbacks
+
+    // Configuration from globalConfig
+    var layoutConfig = config.global.layout || {};
+    var positionConfig = layoutConfig.position || {};
+    var appearanceConfig = config.global.appearance || {};
+
+    // Get platform-specific config
+    var platformConfig = config.template.platformSpecific || {};
+    var messagesConfig = config.template.messages || {};
+
+    // Contact info (username for Telegram, phone for WhatsApp)
+    var contactInfo = platform === 'telegram' ?
+      params.username || 'yourcompany' :
+      params.phone || '1234567890';
+
+    // Title and subtitle with fallbacks
+    var title = params.title ||
+      platformConfig.name ||
+      (platform === 'telegram' ? 'Telegram Support' : 'WhatsApp Support');
+
+    var subtitle = params.subtitle || 'Online now';
+
+    // Welcome message from config or defaults
+    var welcomeMessage = params.message ||
+      (platform === 'telegram' ?
+        (messagesConfig.initial && messagesConfig.initial[0]) || 'Welcome to our support chat! How can we assist you today?' :
+        (messagesConfig.initial && messagesConfig.initial[0]) || 'Hello! I have a question about your services.'
+      );
+
+    // Position configuration (with defaults)
+    var bottomPosition = parseInt(params.bottom || positionConfig.defaultY || 20);
+    var rightPosition = parseInt(params.right || positionConfig.defaultX || 20);
+
+    // Get country code if provided (for WhatsApp)
+    var countryCode = params.country || '';
+    var flagEmoji = countryCodeToFlag(countryCode);
+
+    // Load CSS
+    var cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = baseUrl + '/widget.css';
+    document.head.appendChild(cssLink);
+
+    // Set theme colors and position from config or defaults
+    var style = document.createElement('style');
+    style.textContent = `
+      :root {
+        --widget-color: ${platformConfig.color || (platform === 'telegram' ? '#0088cc' : '#25D366')};
+        --widget-hover-color: ${platformConfig.hoverColor || (platform === 'telegram' ? '#0077b5' : '#20bc5c')};
+        --widget-bottom: ${bottomPosition}px;
+        --widget-right: ${rightPosition}px;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Load icon from configuration
+    var iconPath = platformConfig.iconPath || '/assets/' + platform + '-icon.svg';
+
+    // Call the appropriate widget creation function
+    loadIcon(iconPath, function (icon) {
+      if (platform === 'telegram') {
+        createTelegramWidget(contactInfo, title, subtitle, icon, bottomPosition, rightPosition);
+      } else if (platform === 'whatsapp') {
+        createWhatsAppWidget(contactInfo, title, subtitle, welcomeMessage, icon, bottomPosition, rightPosition, countryCode, flagEmoji);
+      }
+    });
+  }
+
+  // Initialize the widget
+  initWidget();
 
   // Telegram Widget Implementation
-  function createTelegramWidget(username, title, subtitle, icon) {
+  function createTelegramWidget(username, title, subtitle, icon, bottomPosition, rightPosition) {
     // Create widget container
     var container = document.createElement('div');
     container.id = 'telegram-chat-widget';
@@ -161,7 +253,7 @@
     chatWindow.style.display = 'none'; // This is necessary for the toggle functionality
 
     // Apply transform origin based on widget position
-    setTransformOrigin(chatWindow);
+    setTransformOrigin(chatWindow, bottomPosition, rightPosition);
 
     container.appendChild(chatWindow);
 
@@ -203,13 +295,16 @@
     chatBody.className = 'chat-body';
     chatWindow.appendChild(chatBody);
 
-    // Add initial message
-    var initialMessage = document.createElement('div');
-    initialMessage.className = 'chat-message telegram-message';
-    var messageText = document.createElement('p');
-    messageText.textContent = 'Welcome to our support chat! How can we assist you today?';
-    initialMessage.appendChild(messageText);
-    chatBody.appendChild(initialMessage);
+    // Add initial message from config if available
+    var initialMessages = config.template.messages && config.template.messages.initial || ['Welcome to our support chat! How can we assist you today?'];
+    initialMessages.forEach(function (message) {
+      var initialMessage = document.createElement('div');
+      initialMessage.className = 'chat-message telegram-message';
+      var messageText = document.createElement('p');
+      messageText.textContent = message;
+      initialMessage.appendChild(messageText);
+      chatBody.appendChild(initialMessage);
+    });
 
     // Input area
     var inputArea = document.createElement('div');
@@ -219,7 +314,7 @@
     var input = document.createElement('input');
     input.className = 'chat-input';
     input.type = 'text';
-    input.placeholder = 'Type your message...';
+    input.placeholder = config.template.messages && config.template.messages.inputPlaceholder || 'Type your message...';
     inputArea.appendChild(input);
 
     var sendBtn = document.createElement('button');
@@ -283,7 +378,7 @@
   }
 
   // WhatsApp Widget Implementation
-  function createWhatsAppWidget(phoneNumber, title, subtitle, welcomeMessage, icon) {
+  function createWhatsAppWidget(phoneNumber, title, subtitle, welcomeMessage, icon, bottomPosition, rightPosition, countryCode, flagEmoji) {
     // Create widget container
     var container = document.createElement('div');
     container.id = 'whatsapp-chat-widget';
@@ -302,7 +397,7 @@
     chatWindow.style.display = 'none'; // This is necessary for the toggle functionality
 
     // Apply transform origin based on widget position
-    setTransformOrigin(chatWindow);
+    setTransformOrigin(chatWindow, bottomPosition, rightPosition);
 
     container.appendChild(chatWindow);
 
@@ -327,7 +422,7 @@
     titleEl.textContent = title;
 
     // Add country flag if available
-    if (countryCode) {
+    if (params.country) {
       var flagSpan = document.createElement('span');
       flagSpan.className = 'noto-color-emoji-regular';
       flagSpan.textContent = ' ' + flagEmoji;
@@ -356,7 +451,7 @@
 
     // Format the phone number nicely for display
     var formattedPhone = phoneNumber;
-    if (countryCode) {
+    if (params.country) {
       // Add country code and format with spaces for better readability
       // This assumes the phone parameter doesn't include country code
       if (!phoneNumber.startsWith('+')) {
@@ -364,39 +459,42 @@
       }
     }
 
-    // Add initial message
-    var initialMessage = document.createElement('div');
-    initialMessage.className = 'chat-message whatsapp-message';
-    var messageText = document.createElement('p');
-    messageText.textContent = 'Greetings! And Welcome To Our Support! How May We Assist You Today?';
-    initialMessage.appendChild(messageText);
-    chatBody.appendChild(initialMessage);
+    // Add initial messages from config if available
+    var initialMessages = config.template.messages && config.template.messages.initial || [
+      'Greetings! And Welcome To Our Support! How May We Assist You Today?',
+      'You can reach us on WhatsApp: ' + formattedPhone + (params.country ? ' ' + flagEmoji : '')
+    ];
 
-    // Add phone number message
-    var phoneMessage = document.createElement('div');
-    phoneMessage.className = 'chat-message whatsapp-message';
-    var phoneText = document.createElement('p');
-    phoneText.innerHTML = 'You can reach us on WhatsApp: <strong>' + formattedPhone + '</strong>';
-    if (countryCode) {
-      phoneText.innerHTML += ' ' + flagEmoji;
-    }
-    phoneMessage.appendChild(phoneText);
-    chatBody.appendChild(phoneMessage);
+    initialMessages.forEach(function (message) {
+      var initialMessage = document.createElement('div');
+      initialMessage.className = 'chat-message whatsapp-message';
+      var messageText = document.createElement('p');
+
+      // Replace placeholders with actual values
+      var processedMessage = message
+        .replace('{phone}', formattedPhone)
+        .replace('{flag}', params.country ? flagEmoji : '');
+
+      messageText.innerHTML = processedMessage;
+      initialMessage.appendChild(messageText);
+      chatBody.appendChild(initialMessage);
+    });
 
     // Add start chat button
     var startChat = document.createElement('div');
     startChat.className = 'start-chat-area';
     chatWindow.appendChild(startChat);
 
+    var buttonText = config.template.messages && config.template.messages.buttonText || 'Start Chat with WhatsApp';
     var startChatBtn = document.createElement('button');
     startChatBtn.className = 'start-chat-button';
 
     // Add flag to button if available
-    if (countryCode) {
+    if (params.country) {
       startChatBtn.innerHTML = '<span class="noto-color-emoji-regular" style="margin-right: 5px;">' + flagEmoji + '</span> ';
-      startChatBtn.innerHTML += 'Start Chat with WhatsApp';
+      startChatBtn.innerHTML += buttonText;
     } else {
-      startChatBtn.textContent = 'Start Chat with WhatsApp';
+      startChatBtn.textContent = buttonText;
     }
 
     var whatsappIcon = document.createElement('span');
@@ -436,9 +534,9 @@
 
       // Make sure the phone number has the proper format for WhatsApp
       // WhatsApp requires the number in international format without any special characters
-      if (countryCode && !phoneNumber.includes(countryCode)) {
+      if (params.country && !phoneNumber.includes(params.country)) {
         // If countryCode is not part of the phone number, add it
-        fullNumber = countryCode + phoneNumber.replace(/[^0-9]/g, '');
+        fullNumber = params.country + phoneNumber.replace(/[^0-9]/g, '');
       } else {
         // Otherwise just clean the number of any non-numeric characters
         fullNumber = phoneNumber.replace(/[^0-9]/g, '');

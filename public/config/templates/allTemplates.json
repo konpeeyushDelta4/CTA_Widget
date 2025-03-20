@@ -1,0 +1,33 @@
+{
+    "version": 1,
+    "templates": [
+        {
+            "id": "whatsapp-template",
+            "templateId": "whatsapp-chat",
+            "slug": "whatsapp-chat",
+            "name": "WhatsApp Support",
+            "description": "WhatsApp chat support integration",
+            "image": "https://yourgpt.ai/images/templates/whatsapp-chat.png",
+            "tags": [
+                "whatsapp",
+                "chat"
+            ],
+            "category": "whatsapp",
+            "isActive": true
+        },
+        {
+            "id": "telegram-template",
+            "templateId": "telegram-chat",
+            "slug": "telegram-chat",
+            "name": "Telegram Support",
+            "description": "Connect with customers via Telegram messaging",
+            "image": "https://yourgpt.ai/images/templates/telegram-chat.png",
+            "tags": [
+                "telegram",
+                "chat"
+            ],
+            "category": "telegram",
+            "isActive": true
+        }
+    ]
+}

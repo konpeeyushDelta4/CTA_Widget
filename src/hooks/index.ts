@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { CountryCode, countryCodes } from '../utils/countryCode';
 
 export const useCopy = () => {
@@ -53,6 +53,75 @@ export const useCopy = () => {
     }, []);
 
     return { copied, error, copyToClipboard };
+};
+
+// New hook for widget script generation
+export const useWidgetScript = () => {
+    const [scriptVisible, setScriptVisible] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
+    const scriptRef = useRef<HTMLTextAreaElement>(null);
+
+    const handleCopyClick = useCallback(() => {
+        if (scriptRef.current) {
+            scriptRef.current.select();
+            document.execCommand('copy');
+            setIsCopied(true);
+
+            // Reset copy status after 2 seconds
+            setTimeout(() => {
+                setIsCopied(false);
+            }, 2000);
+        }
+    }, []);
+
+    const showScript = useCallback(() => {
+        setScriptVisible(true);
+    }, []);
+
+    const hideScript = useCallback(() => {
+        setScriptVisible(false);
+    }, []);
+
+    // Generate WhatsApp Widget Script
+    const generateWhatsAppScript = useCallback((phoneNumber: string, countryCode: string, position: { bottom: number; right: number }) => {
+        const fullPhoneNumber = `${countryCode}${phoneNumber}`.replace(/\+/g, '');
+
+        return `<!-- CTA Widget Integration -->
+<script>
+(function() {
+    var script = document.createElement('script');
+    script.src = 'https://your-deployment-url.vercel.app/widget.js?platform=whatsapp&phone=${fullPhoneNumber}&bottom=${position.bottom}&right=${position.right}';
+    script.async = true;
+    script.id = 'cta-chat-widget';
+    document.body.appendChild(script);
+})();
+</script>`;
+    }, []);
+
+    // Generate Telegram Widget Script
+    const generateTelegramScript = useCallback((username: string, position: { bottom: number; right: number }) => {
+        return `<!-- CTA Widget Integration -->
+<script>
+(function() {
+    var script = document.createElement('script');
+    script.src = 'https://your-deployment-url.vercel.app/widget.js?platform=telegram&username=${username}&bottom=${position.bottom}&right=${position.right}';
+    script.async = true;
+    script.id = 'cta-chat-widget';
+    document.body.appendChild(script);
+})();
+</script>`;
+    }, []);
+
+    return {
+        scriptVisible,
+        isCopied,
+        scriptRef,
+        handleCopyClick,
+        showScript,
+        hideScript,
+        generateWhatsAppScript,
+        generateTelegramScript
+    };
 };
 
 export const useNumberInput = () => {
