@@ -171,7 +171,7 @@ function TelegramTemplate() {
                         </div>
                     </div>
                 ) : (
-                    <div className=" ">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
                         {/* Left side: Configuration */}
                         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
                             <div className="mb-6">
