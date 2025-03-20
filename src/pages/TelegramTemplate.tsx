@@ -59,7 +59,8 @@ function TelegramTemplate() {
         async function fetchTemplateData() {
             try {
                 setIsLoading(true)
-                const response = await fetch(`${env.baseUrl}/config/templates/telegram/telegram-template.json`)
+                const response = await fetch(`${env.baseUrl}/config/templates/{telegram-template.json}`)
+                // TODO: Dynamic URL slug
                 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch template: ${response.status}`)
