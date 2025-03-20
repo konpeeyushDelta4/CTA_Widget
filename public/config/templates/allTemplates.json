@@ -7,7 +7,7 @@
             "slug": "whatsapp-chat",
             "name": "WhatsApp Support",
             "description": "WhatsApp chat support integration",
-            "image": "https://yourgpt.ai/images/templates/whatsapp-chat.png",
+            "image": "/assets/whatsapp-icon.svg",
             "tags": [
                 "whatsapp",
                 "chat"
@@ -21,7 +21,7 @@
             "slug": "telegram-chat",
             "name": "Telegram Support",
             "description": "Connect with customers via Telegram messaging",
-            "image": "https://yourgpt.ai/images/templates/telegram-chat.png",
+            "image": "/assets/telegram-icon.svg",
             "tags": [
                 "telegram",
                 "chat"

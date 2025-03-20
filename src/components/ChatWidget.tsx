@@ -26,10 +26,12 @@ export default function ChatWidget({ selectedTemplate: initialTemplate }: ChatWi
       />
 
       <div className="mt-6">
-        <WidgetPreview
-          selectedTemplate={selectedTemplate}
-          position={widgetPosition}
-        />
+        {selectedTemplate && (
+          <WidgetPreview
+            selectedTemplate={selectedTemplate}
+            position={widgetPosition}
+          />
+        )}
       </div>
 
       <div className="mt-6">

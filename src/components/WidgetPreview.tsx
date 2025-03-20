@@ -10,36 +10,31 @@ interface WidgetPreviewProps {
 
 function WidgetPreview({ selectedTemplate, position }: WidgetPreviewProps) {
     const [showWidget, setShowWidget] = useState(false)
-    const [isAnimating, setIsAnimating] = useState(false)
-
+    
     useEffect(() => {
         // Reset widget state when template changes
         setShowWidget(false)
     }, [selectedTemplate])
 
     const toggleWidget = () => {
-        setIsAnimating(true)
         setShowWidget(!showWidget)
-        // Reset animation state after animation completes
-        setTimeout(() => {
-            setIsAnimating(false)
-        }, 300)
     }
 
     return (
-        <div className="relative w-full h-full min-h-[350px] flex items-center justify-center">
-            <div className="text-center text-gray-500 dark:text-gray-400 flex flex-col items-center">
-                <span className="text-xl mb-2">👆</span>
+        <div className="relative w-full h-full min-h-[350px] flex items-center justify-center bg-gradient-to-b from-slate-700 to-slate-800 rounded-xl">
+            <div className="text-center text-gray-300 flex flex-col items-center">
+                <span className="text-xl mb-2 animate-bounce-subtle">👆</span>
                 <p>Click the {selectedTemplate === 'whatsapp' ? 'WhatsApp' : 'Telegram'} button in the corner to see the widget</p>
             </div>
 
             {/* Widget button */}
             <button
                 onClick={toggleWidget}
-                className={`absolute rounded-full shadow-lg flex items-center justify-center z-10 w-14 h-14 transition-all duration-300 hover:scale-110 ${selectedTemplate === 'whatsapp'
+                className={`absolute rounded-full shadow-widget flex items-center justify-center z-10 w-14 h-14 transition-all duration-300 hover:scale-110 ${
+                    selectedTemplate === 'whatsapp'
                         ? 'bg-green-500 hover:bg-green-600'
                         : 'bg-blue-500 hover:bg-blue-600'
-                    }`}
+                }`}
                 style={{
                     bottom: `${position.bottom}px`,
                     right: `${position.right}px`,
@@ -58,8 +53,9 @@ function WidgetPreview({ selectedTemplate, position }: WidgetPreviewProps) {
 
             {/* Widget popup */}
             <div
-                className={`absolute shadow-lg rounded-lg w-72 max-w-[90%] max-h-[300px] z-20 overflow-hidden flex flex-col transition-all duration-300 ${showWidget
-                        ? 'opacity-100 transform translate-y-0'
+                className={`absolute shadow-widget rounded-2xl w-80 max-w-[90%] max-h-[375px] z-20 overflow-hidden flex flex-col transition-all duration-300 ${
+                    showWidget
+                        ? 'opacity-100 transform translate-y-0 animate-scaleIn'
                         : 'opacity-0 pointer-events-none transform translate-y-8'
                     } ${selectedTemplate === 'whatsapp' ? 'bg-white' : 'bg-white'}`}
                 style={{
@@ -70,7 +66,7 @@ function WidgetPreview({ selectedTemplate, position }: WidgetPreviewProps) {
                 {/* Header */}
                 <div className={`p-4 text-white ${selectedTemplate === 'whatsapp' ? 'bg-green-500' : 'bg-blue-500'}`}>
                     <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mr-3">
+                        <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center mr-3">
                             {selectedTemplate === 'whatsapp' ? (
                                 <svg width="16" height="16" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path fillRule="evenodd" clipRule="evenodd" d="M23.734 4.207C21.379 1.85 18.297 0.555 15.048 0.553C8.366 0.553 2.922 5.994 2.919 12.679C2.918 14.753 3.442 16.774 4.434 18.569L2.805 25.447L9.846 23.855C11.573 24.756 13.493 25.226 15.443 25.227H15.448C22.129 25.227 27.573 19.785 27.576 13.1C27.577 9.857 26.288 6.767 23.734 4.207ZM15.048 23.281H15.044C13.293 23.281 11.576 22.83 10.074 21.976L9.679 21.743L5.507 22.695L6.48 18.638L6.221 18.227C5.276 16.666 4.768 14.852 4.769 12.98C4.771 7.065 9.358 2.25 15.052 2.25C17.724 2.251 20.255 3.334 22.184 5.269C24.112 7.205 25.192 9.742 25.191 12.423C25.188 18.338 20.601 23.153 15.048 23.281ZM20.911 15.422C20.562 15.248 18.903 14.433 18.582 14.315C18.261 14.196 18.027 14.138 17.792 14.487C17.558 14.836 16.91 15.592 16.705 15.828C16.5 16.063 16.294 16.093 15.946 15.919C15.598 15.745 14.523 15.418 13.251 14.283C12.257 13.397 11.593 12.3 11.388 11.952C11.182 11.603 11.368 11.413 11.544 11.238C11.704 11.081 11.9 10.827 12.077 10.621C12.254 10.415 12.311 10.267 12.429 10.033C12.548 9.798 12.489 9.593 12.4 9.419C12.311 9.244 11.65 7.585 11.357 6.887C11.073 6.212 10.783 6.303 10.567 6.292C10.362 6.282 10.128 6.28 9.893 6.28C9.659 6.28 9.279 6.369 8.958 6.718C8.637 7.066 7.764 7.882 7.764 9.541C7.764 11.2 8.987 12.8 9.163 13.034C9.34 13.269 11.59 16.718 15.003 18.161C15.842 18.511 16.496 18.719 17.004 18.875C17.85 19.136 18.619 19.097 19.225 19.006C19.902 18.904 21.261 18.189 21.554 17.372C21.847 16.554 21.847 15.855 21.758 15.709C21.669 15.564 21.435 15.48 21.086 15.305C20.737 15.13 20.911 15.422 20.911 15.422Z" fill="white" />
@@ -99,8 +95,8 @@ function WidgetPreview({ selectedTemplate, position }: WidgetPreviewProps) {
                 </div>
 
                 {/* Message area */}
-                <div className="bg-gray-100 flex-1 p-4 flex flex-col space-y-2 overflow-y-auto">
-                    <div className="bg-white p-3 rounded-lg shadow-sm self-start max-w-[80%] animate-fadeIn">
+                <div className="bg-gray-50 flex-1 p-4 flex flex-col space-y-2 overflow-y-auto scrollbar-thin">
+                    <div className="bg-white p-3 rounded-lg shadow-sm self-start max-w-[80%] animate-fadeIn border border-gray-100">
                         <p className="text-sm text-gray-800">
                             {selectedTemplate === 'whatsapp'
                                 ? 'Greetings! And Welcome! How May We Assist You Today?'
@@ -112,7 +108,7 @@ function WidgetPreview({ selectedTemplate, position }: WidgetPreviewProps) {
                 {/* Input area */}
                 <div className="p-3 border-t border-gray-200 bg-white">
                     <button
-                        className={`w-full py-2 px-4 rounded-full text-white font-medium text-sm transition-all duration-200 transform active:scale-95 ${selectedTemplate === 'whatsapp'
+                        className={`w-full py-2.5 px-4 rounded-full text-white font-medium text-sm transition-all duration-200 transform active:scale-95 ${selectedTemplate === 'whatsapp'
                                 ? 'bg-green-500 hover:bg-green-600'
                                 : 'bg-blue-500 hover:bg-blue-600'
                             }`}

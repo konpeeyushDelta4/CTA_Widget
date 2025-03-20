@@ -6,37 +6,6 @@ import { ChevronDown, ChevronUp, Copy, Check } from 'lucide-react'
 import { countryCodes } from '../utils/countryCode'
 import { useWidgetScript } from '../hooks'
 
-// Hardcoded template data instead of fetching
-const WHATSAPP_TEMPLATE_DATA = {
-    variant: 1,
-    platformSpecific: {
-        name: "WhatsApp",
-        color: "#25D366",
-        hoverColor: "#128C7E",
-        iconPath: "/assets/whatsapp-icon.svg"
-    },
-    dataFields: [
-        {
-            dataType: "tel",
-            label: "Phone Number",
-            name: "phone",
-            placeholder: "Enter your phone number",
-            required: true
-        }
-    ],
-    messages: {
-        initial: ["Greetings! And Welcome To Company Name! How May We Assist You Today?"],
-        buttonText: "Start Chat"
-    },
-    validation: {
-        phone: {
-            minLength: 10,
-            maxLength: 15,
-            allowedChars: "0-9"
-        }
-    }
-}
-
 interface WhatsAppTemplateData {
     variant: number
     platformSpecific: {
@@ -75,7 +44,9 @@ interface Country {
 
 function WhatsAppTemplate() {
     const navigate = useNavigate()
-    const [template] = useState<WhatsAppTemplateData>(WHATSAPP_TEMPLATE_DATA)
+    const [template, setTemplate] = useState<WhatsAppTemplateData | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
     const [phoneNumber, setPhoneNumber] = useState('')
     const [widgetPosition, setWidgetPosition] = useState({ bottom: 20, right: 20 })
 
@@ -89,6 +60,30 @@ function WhatsAppTemplate() {
         hideScript,
         generateWhatsAppScript
     } = useWidgetScript()
+
+    // Fetch template data
+    useEffect(() => {
+        async function fetchTemplateData() {
+            try {
+                setIsLoading(true)
+                const response = await fetch('http://localhost:4173/config/templates/whatsapp/whatsapp-template.json')
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch template: ${response.status}`)
+                }
+                
+                const data = await response.json()
+                setTemplate(data)
+            } catch (err) {
+                console.error('Error fetching template:', err)
+                setError(err instanceof Error ? err.message : 'Failed to load template')
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        
+        fetchTemplateData()
+    }, [])
 
     // Country code dropdown state
     const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
@@ -120,6 +115,10 @@ function WhatsAppTemplate() {
             document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [])
+
+    if (isLoading) return <div className="text-center py-10">Loading template...</div>
+    if (error) return <div className="text-center py-10 text-red-500">Error: {error}</div>
+    if (!template) return <div className="text-center py-10 text-red-500">Template data not available</div>
 
     return (
         <div>
@@ -273,18 +272,44 @@ function WhatsAppTemplate() {
                                             </div>
 
                                             {/* Phone number input */}
-                                            <input
-                                                id="whatsappNumber"
-                                                type="text"
-                                                value={phoneNumber}
-                                                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ""))}
-                                                placeholder="Phone number"
-                                                className="flex-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-r-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            />
+                                            <div className="relative flex-1">
+                                                <input
+                                                    id="whatsappNumber"
+                                                    type="text"
+                                                    value={phoneNumber}
+                                                    onChange={(e) => {
+                                                        const input = e.target.value.replace(/\D/g, "")
+                                                        if (input.length <= 10) {
+                                                            setPhoneNumber(input)
+                                                        }
+                                                    }}
+                                                    placeholder="Phone number"
+                                                    maxLength={10}
+                                                    className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-r-md px-3 py-2 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                    aria-describedby="phone-digits-counter"
+                                                />
+                                                <div 
+                                                    id="phone-digits-counter" 
+                                                    className={`absolute right-3 top-2 text-xs ${
+                                                        phoneNumber.length === 10 
+                                                            ? 'text-green-500' 
+                                                            : phoneNumber.length >= 7 
+                                                                ? 'text-amber-500' 
+                                                                : 'text-gray-400'
+                                                    }`}
+                                                >
+                                                    {phoneNumber.length}/10
+                                                </div>
+                                            </div>
                                         </div>
                                         {phoneNumber.length > 0 && phoneNumber.length < template.validation.phone.minLength && (
                                             <p className="text-amber-500 text-xs mt-1">
-                                                Please enter at least {template.validation.phone.minLength} digits
+                                                Please enter a complete {template.validation.phone.minLength}-digit phone number
+                                            </p>
+                                        )}
+                                        {phoneNumber.length === 10 && (
+                                            <p className="text-green-500 text-xs mt-1">
+                                                Valid phone number ✓
                                             </p>
                                         )}
                                     </div>
@@ -306,9 +331,9 @@ function WhatsAppTemplate() {
                         </div>
 
                         {/* Right side: Preview */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 h-full">
                             <h2 className="text-xl font-medium mb-4 text-gray-800 dark:text-white">Preview</h2>
-                            <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden min-h-[350px]">
+                            <div className="aspect-video  bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
                                 <WidgetPreview selectedTemplate="whatsapp" position={widgetPosition} />
                             </div>
                         </div>

@@ -1,40 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import WidgetPreview from '../components/WidgetPreview'
 import PositionSlider from '../components/PositionSlider'
 import { Copy, Check } from 'lucide-react'
 import { useWidgetScript } from '../hooks'
-
-// Hardcoded template data instead of fetching
-const TELEGRAM_TEMPLATE_DATA = {
-    variant: 1,
-    platformSpecific: {
-        name: "Telegram",
-        color: "#0088cc",
-        hoverColor: "#0077b5",
-        iconPath: "/assets/telegram-icon.svg"
-    },
-    dataFields: [
-        {
-            dataType: "text",
-            label: "Username",
-            name: "username",
-            placeholder: "Enter your Telegram username",
-            required: true
-        }
-    ],
-    messages: {
-        initial: ["Hello! 👋 How can I help you today?"],
-        buttonText: "Chat on Telegram"
-    },
-    validation: {
-        username: {
-            minLength: 5,
-            maxLength: 32,
-            allowedChars: "a-zA-Z0-9_"
-        }
-    }
-}
 
 interface TelegramTemplateData {
     variant: number
@@ -67,7 +36,9 @@ interface TelegramTemplateData {
 
 function TelegramTemplate() {
     const navigate = useNavigate()
-    const [template] = useState<TelegramTemplateData>(TELEGRAM_TEMPLATE_DATA)
+    const [template, setTemplate] = useState<TelegramTemplateData | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
     const [username, setUsername] = useState('')
     const [widgetPosition, setWidgetPosition] = useState({ bottom: 20, right: 20 })
 
@@ -81,6 +52,34 @@ function TelegramTemplate() {
         hideScript,
         generateTelegramScript
     } = useWidgetScript()
+
+    // Fetch template data
+    useEffect(() => {
+        async function fetchTemplateData() {
+            try {
+                setIsLoading(true)
+                const response = await fetch('http://localhost:4173/config/templates/telegram/telegram-template.json')
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch template: ${response.status}`)
+                }
+                
+                const data = await response.json()
+                setTemplate(data)
+            } catch (err) {
+                console.error('Error fetching template:', err)
+                setError(err instanceof Error ? err.message : 'Failed to load template')
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        
+        fetchTemplateData()
+    }, [])
+
+    if (isLoading) return <div className="text-center py-10">Loading template...</div>
+    if (error) return <div className="text-center py-10 text-red-500">Error: {error}</div>
+    if (!template) return <div className="text-center py-10 text-red-500">Template data not available</div>
 
     // Handle username validation
     const isUsernameValid = username.length >= template.validation.username.minLength &&
@@ -171,7 +170,7 @@ function TelegramTemplate() {
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+                    <div className=" ">
                         {/* Left side: Configuration */}
                         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
                             <div className="mb-6">
@@ -184,7 +183,6 @@ function TelegramTemplate() {
                                         </label>
                                         <div className="flex">
                                             <span className="bg-gray-100 dark:bg-gray-700 px-3 py-2 text-sm border border-r-0 border-gray-300 dark:border-gray-600 rounded-l-md text-gray-500 dark:text-gray-400">
-                                                @
                                             </span>
                                             <input
                                                 id="telegramUsername"
@@ -220,9 +218,9 @@ function TelegramTemplate() {
                         </div>
 
                         {/* Right side: Preview */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 h-full">
                             <h2 className="text-xl font-medium mb-4 text-gray-800 dark:text-white">Preview</h2>
-                            <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden min-h-[350px]">
+                            <div className="aspect-video  bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
                                 <WidgetPreview selectedTemplate="telegram" position={widgetPosition} />
                             </div>
                         </div>
@@ -233,4 +231,4 @@ function TelegramTemplate() {
     )
 }
 
-export default TelegramTemplate 
+export default TelegramTemplate
