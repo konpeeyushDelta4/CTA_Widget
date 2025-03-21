@@ -44,6 +44,13 @@
     telegram: baseUrl + '/config/templates/telegram/telegram-template.json'
   };
 
+  // CSS paths
+  var cssPaths = {
+    base: baseUrl + '/widget.css',
+    whatsapp: baseUrl + '/style/whatsapp/whatsapp.css',
+    telegram: baseUrl + '/style/telegram/telegram.css'
+  };
+
   // Global configuration object
   var config = {
     global: {},
@@ -73,6 +80,15 @@
 
     // Combine the two regional indicator symbols to form the flag
     return String.fromCodePoint(firstChar) + String.fromCodePoint(secondChar);
+  }
+
+  // Load CSS files
+  function loadCSS(path) {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = path;
+    document.head.appendChild(link);
   }
 
   // Fetch JSON configuration files
@@ -139,6 +155,9 @@
 
   // Initialize widget based on configuration
   function initWidget() {
+    // Load base CSS file
+    loadCSS(cssPaths.base);
+    
     // Load global configuration
     fetchConfig(configPaths.global, function (err, globalConfig) {
       if (!err && globalConfig) {
@@ -147,403 +166,414 @@
 
       // Platform (default to telegram if not specified)
       var platform = params.platform || 'telegram';
+      
+      // Load platform-specific CSS
+      loadCSS(cssPaths[platform]);
 
-      // Load template-specific configuration
+      // Load platform-specific configuration and initialize widget
       fetchConfig(configPaths[platform], function (err, templateConfig) {
         if (!err && templateConfig) {
           config.template = templateConfig;
         }
-
-        // Initialize widget with merged configuration
         setupWidget(platform);
       });
     });
   }
 
+  // Setup widget based on platform
   function setupWidget(platform) {
-    // Extract configuration values with fallbacks
-
-    // Configuration from globalConfig
-    var layoutConfig = config.global.layout || {};
-    var positionConfig = layoutConfig.position || {};
-    var appearanceConfig = config.global.appearance || {};
-
-    // Get platform-specific config
-    var platformConfig = config.template.platformSpecific || {};
-    var messagesConfig = config.template.messages || {};
-
-    // Contact info (username for Telegram, phone for WhatsApp)
-    var contactInfo = platform === 'telegram' ?
-      params.username || 'yourcompany' :
-      params.phone || '1234567890';
-
-    // Title and subtitle with fallbacks
-    var title = params.title ||
-      platformConfig.name ||
-      (platform === 'telegram' ? 'Telegram Support' : 'WhatsApp Support');
-
-    var subtitle = params.subtitle || 'Online now';
-
-    // Welcome message from config or defaults
-    var welcomeMessage = params.message ||
-      (platform === 'telegram' ?
-        (messagesConfig.initial && messagesConfig.initial[0]) || 'Welcome to our support chat! How can we assist you today?' :
-        (messagesConfig.initial && messagesConfig.initial[0]) || 'Hello! I have a question about your services.'
-      );
-
-    // Position configuration (with defaults)
-    var bottomPosition = parseInt(params.bottom || positionConfig.defaultY || 20);
-    var rightPosition = parseInt(params.right || positionConfig.defaultX || 20);
-
-    // Get country code if provided (for WhatsApp)
-    var countryCode = params.country || '';
-    var flagEmoji = countryCodeToFlag(countryCode);
-
-    // Load CSS
-    var cssLink = document.createElement('link');
-    cssLink.rel = 'stylesheet';
-    cssLink.href = baseUrl + '/widget.css';
-    document.head.appendChild(cssLink);
-
-    // Set theme colors and position from config or defaults
-    var style = document.createElement('style');
-    style.textContent = `
-      :root {
-        --widget-color: ${platformConfig.color || (platform === 'telegram' ? '#0088cc' : '#25D366')};
-        --widget-hover-color: ${platformConfig.hoverColor || (platform === 'telegram' ? '#0077b5' : '#20bc5c')};
-        --widget-bottom: ${bottomPosition}px;
-        --widget-right: ${rightPosition}px;
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Load icon from configuration
-    var iconPath = platformConfig.iconPath || '/assets/' + platform + '-icon.svg';
-
-    // Call the appropriate widget creation function
-    loadIcon(iconPath, function (icon) {
+    var bottomPosition = parseInt(params.bottom) || config.global.layout?.position?.defaultY || 20;
+    var rightPosition = parseInt(params.right) || config.global.layout?.position?.defaultX || 20;
+    
+    // Get platform-specific icon
+    var iconPath = config.template.platformSpecific?.iconPath || '/assets/' + platform + '-icon.svg';
+    
+    loadIcon(iconPath, function (iconSvg) {
       if (platform === 'telegram') {
-        createTelegramWidget(contactInfo, title, subtitle, icon, bottomPosition, rightPosition);
+        // Get Telegram-specific parameters
+        var username = params.username || '';
+        var title = params.title || config.template.platformSpecific?.name || 'Telegram Support';
+        var subtitle = params.subtitle || config.template.dataFields?.find(field => field.name === 'subtitle')?.defaultValue || 'Online now';
+        
+        createTelegramWidget(username, title, subtitle, iconSvg, bottomPosition, rightPosition);
       } else if (platform === 'whatsapp') {
-        createWhatsAppWidget(contactInfo, title, subtitle, welcomeMessage, icon, bottomPosition, rightPosition, countryCode, flagEmoji);
+        // Get WhatsApp-specific parameters
+        var phoneNumber = params.phone || '';
+        var countryCode = params.country || '';
+        var flagEmoji = countryCodeToFlag(countryCode);
+        var welcomeMessage = params.message || config.template.messages?.initial?.[0] || 'Hello! I have a question about your services.';
+        var title = params.title || config.template.platformSpecific?.name || 'WhatsApp Support';
+        var subtitle = params.subtitle || config.template.dataFields?.find(field => field.name === 'subtitle')?.defaultValue || 'Online now';
+        
+        createWhatsAppWidget(phoneNumber, title, subtitle, welcomeMessage, iconSvg, bottomPosition, rightPosition, countryCode, flagEmoji);
       }
     });
   }
 
-  // Initialize the widget
-  initWidget();
-
-  // Telegram Widget Implementation
+  // Create Telegram Widget
   function createTelegramWidget(username, title, subtitle, icon, bottomPosition, rightPosition) {
     // Create widget container
     var container = document.createElement('div');
     container.id = 'telegram-chat-widget';
-    document.body.appendChild(container);
-
-    // Create widget button
+    container.className = 'chat-widget';
+    
+    // Set CSS variables for positioning
+    container.style.setProperty('--widget-bottom', bottomPosition + 'px');
+    container.style.setProperty('--widget-right', rightPosition + 'px');
+    container.style.setProperty('--widget-color', config.template.platformSpecific?.color || '#0088cc');
+    container.style.setProperty('--widget-hover-color', config.template.platformSpecific?.hoverColor || '#0077b5');
+    
+    // Create button
     var button = document.createElement('button');
     button.className = 'widget-button';
+    button.setAttribute('aria-label', 'Open chat');
     button.innerHTML = icon;
-    button.title = 'Chat with us on Telegram';
-    container.appendChild(button);
-
-    // Create chat window (initially hidden)
+    
+    // Create chat window
     var chatWindow = document.createElement('div');
     chatWindow.className = 'chat-window';
-    chatWindow.style.display = 'none'; // This is necessary for the toggle functionality
-
-    // Apply transform origin based on widget position
+    
+    // Apply animation settings from config
+    if (config.global.layout?.animation?.slideIn) {
+      chatWindow.style.animation = 'slideIn 0.3s ease-out forwards';
+    } else if (config.global.layout?.animation?.fadeIn) {
+      chatWindow.style.animation = 'fadeIn 0.3s ease-out forwards';
+    }
+    
+    // Disable button pulse animation if configured
+    if (!config.global.layout?.animation?.pulse) {
+      button.style.animation = 'none';
+    }
+    
+    // Set transform origin based on position
     setTransformOrigin(chatWindow, bottomPosition, rightPosition);
-
-    container.appendChild(chatWindow);
-
+    
     // Create chat header
     var header = document.createElement('div');
     header.className = 'chat-header';
-    chatWindow.appendChild(header);
-
-    // Header content
+    
     var headerTitle = document.createElement('div');
     headerTitle.className = 'header-title';
-
-    var logo = document.createElement('div');
-    logo.className = 'header-logo';
-    logo.innerHTML = icon;
-    headerTitle.appendChild(logo);
-
-    var titleText = document.createElement('div');
-    titleText.className = 'header-text';
-    var titleEl = document.createElement('p');
-    titleEl.className = 'header-text-title';
-    titleEl.textContent = title || 'Telegram';
-    var subtitleEl = document.createElement('p');
-    subtitleEl.className = 'header-text-subtitle';
-    subtitleEl.textContent = subtitle || 'Company Support';
-    titleText.appendChild(titleEl);
-    titleText.appendChild(subtitleEl);
-    headerTitle.appendChild(titleText);
-
+    
+    var logoDiv = document.createElement('div');
+    logoDiv.className = 'header-logo';
+    logoDiv.innerHTML = icon;
+    
+    var headerTextDiv = document.createElement('div');
+    headerTextDiv.className = 'header-text';
+    
+    var titleElem = document.createElement('div');
+    titleElem.className = 'header-text-title';
+    titleElem.textContent = title;
+    
+    var subtitleElem = document.createElement('div');
+    subtitleElem.className = 'header-text-subtitle';
+    subtitleElem.textContent = subtitle;
+    
+    headerTextDiv.appendChild(titleElem);
+    headerTextDiv.appendChild(subtitleElem);
+    
+    headerTitle.appendChild(logoDiv);
+    headerTitle.appendChild(headerTextDiv);
+    
+    var closeButton = document.createElement('button');
+    closeButton.className = 'close-button';
+    closeButton.setAttribute('aria-label', 'Close chat');
+    closeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+    
     header.appendChild(headerTitle);
-
-    var closeBtn = document.createElement('button');
-    closeBtn.className = 'close-button';
-    closeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-    header.appendChild(closeBtn);
-
-    // Chat body
-    var chatBody = document.createElement('div');
-    chatBody.className = 'chat-body';
-    chatWindow.appendChild(chatBody);
-
-    // Add initial message from config if available
-    var initialMessages = config.template.messages && config.template.messages.initial || ['Welcome to our support chat! How can we assist you today?'];
-    initialMessages.forEach(function (message) {
-      var initialMessage = document.createElement('div');
-      initialMessage.className = 'chat-message telegram-message';
-      var messageText = document.createElement('p');
-      messageText.textContent = message;
-      initialMessage.appendChild(messageText);
-      chatBody.appendChild(initialMessage);
+    header.appendChild(closeButton);
+    
+    // Create chat body
+    var body = document.createElement('div');
+    body.className = 'chat-body';
+    
+    // Add initial greeting message
+    var initialMessages = config.template.messages?.initial || ['Welcome to our support chat! How can we assist you today?'];
+    
+    initialMessages.forEach(function(messageText) {
+      var message = document.createElement('div');
+      message.className = 'chat-message telegram-message';
+      
+      var paragraph = document.createElement('p');
+      paragraph.textContent = messageText;
+      
+      message.appendChild(paragraph);
+      body.appendChild(message);
     });
-
-    // Input area
+    
+    // Create input area
     var inputArea = document.createElement('div');
     inputArea.className = 'input-area';
-    chatWindow.appendChild(inputArea);
-
+    
     var input = document.createElement('input');
-    input.className = 'chat-input';
     input.type = 'text';
-    input.placeholder = config.template.messages && config.template.messages.inputPlaceholder || 'Type your message...';
+    input.className = 'chat-input';
+    input.placeholder = config.template.messages?.inputPlaceholder || 'Type your message...';
+    
+    var sendButton = document.createElement('button');
+    sendButton.className = 'send-button';
+    sendButton.setAttribute('aria-label', 'Send message');
+    sendButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>';
+    
     inputArea.appendChild(input);
-
-    var sendBtn = document.createElement('button');
-    sendBtn.className = 'send-button';
-    sendBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>';
-    inputArea.appendChild(sendBtn);
-
-    // Toggle chat window when button is clicked
-    button.addEventListener('click', function () {
-      var isVisible = chatWindow.style.display === 'flex';
-      if (isVisible) {
-        chatWindow.classList.remove('active');
-        setTimeout(function () {
-          chatWindow.style.display = 'none';
-        }, 300);
-      } else {
-        chatWindow.style.display = 'flex';
-        setTimeout(function () {
-          chatWindow.classList.add('active');
-        }, 10);
+    inputArea.appendChild(sendButton);
+    
+    // Build chat window
+    chatWindow.appendChild(header);
+    chatWindow.appendChild(body);
+    chatWindow.appendChild(inputArea);
+    
+    // Add components to container
+    container.appendChild(button);
+    container.appendChild(chatWindow);
+    
+    // Append to body
+    document.body.appendChild(container);
+    
+    // Event Listeners
+    button.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent event bubbling
+      chatWindow.classList.toggle('active');
+      
+      // Scroll to bottom of chat when opened
+      body.scrollTop = body.scrollHeight;
+      
+      // Focus input when chat is opened
+      if (chatWindow.classList.contains('active')) {
+        input.focus();
       }
     });
-
-    // Close chat window when close button is clicked
-    closeBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
+    
+    closeButton.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent event bubbling
       chatWindow.classList.remove('active');
-      setTimeout(function () {
-        chatWindow.style.display = 'none';
-      }, 300);
     });
-
-    // Handle send button click - open Telegram
-    sendBtn.addEventListener('click', function () {
-      var message = input.value.trim();
-      if (message) {
-        // Add user message
-        var userMsg = document.createElement('div');
-        userMsg.className = 'chat-message user-message';
-        userMsg.textContent = message;
-        chatBody.appendChild(userMsg);
-
+    
+    // Handle messages
+    function handleSendMessage() {
+      var messageText = input.value.trim();
+      
+      if (messageText) {
+        // Add user message to chat
+        var userMessage = document.createElement('div');
+        userMessage.className = 'chat-message user-message';
+        
+        var paragraph = document.createElement('p');
+        paragraph.textContent = messageText;
+        
+        userMessage.appendChild(paragraph);
+        body.appendChild(userMessage);
+        
         // Clear input
         input.value = '';
-
+        
         // Scroll to bottom
-        chatBody.scrollTop = chatBody.scrollHeight;
-
-        // Open Telegram in new tab
-        var telegramUrl = 'https://t.me/' + username;
-        window.open(telegramUrl, '_blank');
+        body.scrollTop = body.scrollHeight;
+        
+        // Open Telegram in new tab after delay
+        setTimeout(function() {
+          var telegramUrl = 'https://t.me/' + username;
+          window.open(telegramUrl, '_blank');
+          
+          // Close chat window after sending message
+          chatWindow.classList.remove('active');
+        }, 500);
       }
-    });
-
-    // Handle Enter key in input
-    input.addEventListener('keypress', function (e) {
+    }
+    
+    sendButton.addEventListener('click', handleSendMessage);
+    
+    input.addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
-        sendBtn.click();
+        handleSendMessage();
       }
     });
+    
+    // Click outside to close
+    if (config.global.behavior?.closeOnClickOutside) {
+      document.addEventListener('click', function(event) {
+        var isClickInside = container.contains(event.target);
+        
+        if (!isClickInside && chatWindow.classList.contains('active')) {
+          chatWindow.classList.remove('active');
+        }
+      });
+    }
+    
+    // Auto-open the widget on load if configured
+    if (config.global.behavior?.openOnLoad) {
+      setTimeout(function() {
+        chatWindow.classList.add('active');
+        input.focus();
+      }, config.global.behavior.delayBeforeShow || 0);
+    }
   }
 
-  // WhatsApp Widget Implementation
+  // Create WhatsApp Widget
   function createWhatsAppWidget(phoneNumber, title, subtitle, welcomeMessage, icon, bottomPosition, rightPosition, countryCode, flagEmoji) {
     // Create widget container
     var container = document.createElement('div');
     container.id = 'whatsapp-chat-widget';
-    document.body.appendChild(container);
-
-    // Create widget button
+    container.className = 'chat-widget';
+    
+    // Set CSS variables for positioning
+    container.style.setProperty('--widget-bottom', bottomPosition + 'px');
+    container.style.setProperty('--widget-right', rightPosition + 'px');
+    container.style.setProperty('--widget-color', config.template.platformSpecific?.color || '#25D366');
+    container.style.setProperty('--widget-hover-color', config.template.platformSpecific?.hoverColor || '#20bc5c');
+    
+    // Create button
     var button = document.createElement('button');
     button.className = 'widget-button';
+    button.setAttribute('aria-label', 'Open chat');
     button.innerHTML = icon;
-    button.title = 'Chat with us on WhatsApp';
-    container.appendChild(button);
-
-    // Create chat window (initially hidden)
+    
+    // Create chat window
     var chatWindow = document.createElement('div');
     chatWindow.className = 'chat-window';
-    chatWindow.style.display = 'none'; // This is necessary for the toggle functionality
-
-    // Apply transform origin based on widget position
+    
+    // Apply animation settings from config
+    if (config.global.layout?.animation?.slideIn) {
+      chatWindow.style.animation = 'slideIn 0.3s ease-out forwards';
+    } else if (config.global.layout?.animation?.fadeIn) {
+      chatWindow.style.animation = 'fadeIn 0.3s ease-out forwards';
+    }
+    
+    // Disable button pulse animation if configured
+    if (!config.global.layout?.animation?.pulse) {
+      button.style.animation = 'none';
+    }
+    
+    // Set transform origin based on position
     setTransformOrigin(chatWindow, bottomPosition, rightPosition);
-
-    container.appendChild(chatWindow);
-
+    
     // Create chat header
     var header = document.createElement('div');
     header.className = 'chat-header';
-    chatWindow.appendChild(header);
-
-    // Header content
+    
     var headerTitle = document.createElement('div');
     headerTitle.className = 'header-title';
-
-    var logo = document.createElement('div');
-    logo.className = 'header-logo';
-    logo.innerHTML = icon;
-    headerTitle.appendChild(logo);
-
-    var titleText = document.createElement('div');
-    titleText.className = 'header-text';
-    var titleEl = document.createElement('p');
-    titleEl.className = 'header-text-title';
-    titleEl.textContent = title;
-
-    // Add country flag if available
-    if (params.country) {
-      var flagSpan = document.createElement('span');
-      flagSpan.className = 'noto-color-emoji-regular';
-      flagSpan.textContent = ' ' + flagEmoji;
-      flagSpan.style.marginLeft = '5px';
-      titleEl.appendChild(flagSpan);
-    }
-
-    var subtitleEl = document.createElement('p');
-    subtitleEl.className = 'header-text-subtitle';
-    subtitleEl.textContent = subtitle;
-    titleText.appendChild(titleEl);
-    titleText.appendChild(subtitleEl);
-    headerTitle.appendChild(titleText);
-
+    
+    var logoDiv = document.createElement('div');
+    logoDiv.className = 'header-logo';
+    logoDiv.innerHTML = icon;
+    
+    var headerTextDiv = document.createElement('div');
+    headerTextDiv.className = 'header-text';
+    
+    var titleElem = document.createElement('div');
+    titleElem.className = 'header-text-title';
+    titleElem.textContent = title;
+    
+    var subtitleElem = document.createElement('div');
+    subtitleElem.className = 'header-text-subtitle';
+    subtitleElem.textContent = subtitle;
+    
+    headerTextDiv.appendChild(titleElem);
+    headerTextDiv.appendChild(subtitleElem);
+    
+    headerTitle.appendChild(logoDiv);
+    headerTitle.appendChild(headerTextDiv);
+    
+    var closeButton = document.createElement('button');
+    closeButton.className = 'close-button';
+    closeButton.setAttribute('aria-label', 'Close chat');
+    closeButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+    
     header.appendChild(headerTitle);
-
-    var closeBtn = document.createElement('button');
-    closeBtn.className = 'close-button';
-    closeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-    header.appendChild(closeBtn);
-
-    // Chat body
-    var chatBody = document.createElement('div');
-    chatBody.className = 'chat-body whatsapp-chat-body';
-    chatWindow.appendChild(chatBody);
-
-    // Format the phone number nicely for display
-    var formattedPhone = phoneNumber;
-    if (params.country) {
-      // Add country code and format with spaces for better readability
-      // This assumes the phone parameter doesn't include country code
-      if (!phoneNumber.startsWith('+')) {
-        formattedPhone = '+' + phoneNumber;
-      }
-    }
-
-    // Add initial messages from config if available
-    var initialMessages = config.template.messages && config.template.messages.initial || [
-      'Greetings! And Welcome To Our Support! How May We Assist You Today?',
-      'You can reach us on WhatsApp: ' + formattedPhone + (params.country ? ' ' + flagEmoji : '')
-    ];
-
-    initialMessages.forEach(function (message) {
-      var initialMessage = document.createElement('div');
-      initialMessage.className = 'chat-message whatsapp-message';
-      var messageText = document.createElement('p');
-
-      // Replace placeholders with actual values
-      var processedMessage = message
-        .replace('{phone}', formattedPhone)
-        .replace('{flag}', params.country ? flagEmoji : '');
-
-      messageText.innerHTML = processedMessage;
-      initialMessage.appendChild(messageText);
-      chatBody.appendChild(initialMessage);
+    header.appendChild(closeButton);
+    
+    // Create chat body with WhatsApp style
+    var body = document.createElement('div');
+    body.className = 'chat-body';
+    
+    // Add initial greeting messages
+    var initialMessages = config.template.messages?.initial || ['Welcome to our support chat! How can we assist you today?'];
+    
+    initialMessages.forEach(function(messageText) {
+      // Replace placeholders in the message
+      var processedMessage = messageText
+        .replace('{phone}', phoneNumber)
+        .replace('{flag}', '<span class="noto-color-emoji-regular country-flag">' + flagEmoji + '</span>');
+      
+      var message = document.createElement('div');
+      message.className = 'chat-message agent-message';
+      
+      var paragraph = document.createElement('p');
+      paragraph.innerHTML = processedMessage;
+      
+      message.appendChild(paragraph);
+      body.appendChild(message);
     });
-
-    // Add start chat button
-    var startChat = document.createElement('div');
-    startChat.className = 'start-chat-area';
-    chatWindow.appendChild(startChat);
-
-    var buttonText = config.template.messages && config.template.messages.buttonText || 'Start Chat with WhatsApp';
-    var startChatBtn = document.createElement('button');
-    startChatBtn.className = 'start-chat-button';
-
-    // Add flag to button if available
-    if (params.country) {
-      startChatBtn.innerHTML = '<span class="noto-color-emoji-regular" style="margin-right: 5px;">' + flagEmoji + '</span> ';
-      startChatBtn.innerHTML += buttonText;
-    } else {
-      startChatBtn.textContent = buttonText;
-    }
-
-    var whatsappIcon = document.createElement('span');
-    whatsappIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
-    startChatBtn.prepend(whatsappIcon);
-
-    startChat.appendChild(startChatBtn);
-
-    // Toggle chat window when button is clicked
-    button.addEventListener('click', function () {
-      var isVisible = chatWindow.style.display === 'flex';
-      if (isVisible) {
-        chatWindow.classList.remove('active');
-        setTimeout(function () {
-          chatWindow.style.display = 'none';
-        }, 300);
-      } else {
-        chatWindow.style.display = 'flex';
-        setTimeout(function () {
-          chatWindow.classList.add('active');
-        }, 10);
-      }
+    
+    // Create start chat area
+    var startChatArea = document.createElement('div');
+    startChatArea.className = 'start-chat-area';
+    
+    var startChatButton = document.createElement('button');
+    startChatButton.className = 'start-chat-button';
+    startChatButton.innerHTML = icon + (config.template.messages?.buttonText || 'Chat with us on WhatsApp');
+    startChatButton.style.backgroundColor = config.template.platformSpecific?.color || '#25D366';
+    
+    startChatArea.appendChild(startChatButton);
+    
+    // Build chat window
+    chatWindow.appendChild(header);
+    chatWindow.appendChild(body);
+    chatWindow.appendChild(startChatArea);
+    
+    // Add components to container
+    container.appendChild(button);
+    container.appendChild(chatWindow);
+    
+    // Append to body
+    document.body.appendChild(container);
+    
+    // Event Listeners
+    button.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent event bubbling
+      chatWindow.classList.toggle('active');
+      
+      // Scroll to bottom of chat when opened
+      body.scrollTop = body.scrollHeight;
     });
-
-    // Close chat window when close button is clicked
-    closeBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
+    
+    closeButton.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent event bubbling
       chatWindow.classList.remove('active');
-      setTimeout(function () {
-        chatWindow.style.display = 'none';
-      }, 300);
     });
-
-    // Open WhatsApp when start chat button is clicked
-    startChatBtn.addEventListener('click', function () {
-      var fullNumber = phoneNumber;
-
-      // Make sure the phone number has the proper format for WhatsApp
-      // WhatsApp requires the number in international format without any special characters
-      if (params.country && !phoneNumber.includes(params.country)) {
-        // If countryCode is not part of the phone number, add it
-        fullNumber = params.country + phoneNumber.replace(/[^0-9]/g, '');
-      } else {
-        // Otherwise just clean the number of any non-numeric characters
-        fullNumber = phoneNumber.replace(/[^0-9]/g, '');
-      }
-
-      var url = 'https://wa.me/' + fullNumber + '?text=' + encodeURIComponent(welcomeMessage || 'Hello! I have a question about your services.');
-      window.open(url, '_blank');
+    
+    // Open WhatsApp when button is clicked
+    startChatButton.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent event bubbling
+      var encodedMessage = encodeURIComponent(welcomeMessage);
+      var whatsappUrl = 'https://wa.me/' + (countryCode ? countryCode : '') + phoneNumber + '?text=' + encodedMessage;
+      window.open(whatsappUrl, '_blank');
+      
+      // Close chat window after clicking
+      chatWindow.classList.remove('active');
     });
+    
+    // Click outside to close
+    if (config.global.behavior?.closeOnClickOutside) {
+      document.addEventListener('click', function(event) {
+        var isClickInside = container.contains(event.target);
+        
+        if (!isClickInside && chatWindow.classList.contains('active')) {
+          chatWindow.classList.remove('active');
+        }
+      });
+    }
+    
+    // Auto-open the widget on load if configured
+    if (config.global.behavior?.openOnLoad) {
+      setTimeout(function() {
+        chatWindow.classList.add('active');
+      }, config.global.behavior.delayBeforeShow || 0);
+    }
   }
+
+  // Initialize the widget
+  initWidget();
 })();

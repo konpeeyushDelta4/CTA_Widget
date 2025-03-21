@@ -1,0 +1,114 @@
+/* WhatsApp-specific Widget Styles */
+
+/* WhatsApp Colors and Variables */
+:root {
+  --whatsapp-primary: #25D366;
+  --whatsapp-primary-hover: #22c15e;
+  --whatsapp-header: #10b981;
+  --whatsapp-chat-bg: #e5ded8;
+  --whatsapp-agent-bubble: #dcf8c6;
+  --whatsapp-user-bubble: #fff;
+  --whatsapp-text: #303030;
+  --whatsapp-time: #8c8c8c;
+  --whatsapp-read-receipt: #53bdeb;
+}
+
+/* WhatsApp Widget Button Override */
+#whatsapp-chat-widget .widget-button {
+  background-color: var(--whatsapp-primary);
+}
+
+#whatsapp-chat-widget .widget-button:hover {
+  background-color: var(--whatsapp-primary-hover);
+}
+
+/* WhatsApp Chat Header */
+#whatsapp-chat-widget .chat-header {
+  background-color: var(--whatsapp-header);
+}
+
+/* WhatsApp Avatar */
+.header-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 12px;
+}
+
+.header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* WhatsApp Chat Body */
+#whatsapp-chat-widget .chat-body {
+  background-color: var(--whatsapp-chat-bg);
+}
+
+/* WhatsApp Message Styles */
+#whatsapp-chat-widget .agent-message {
+  background-color: var(--whatsapp-agent-bubble);
+  align-self: flex-start;
+  border-radius: 8px 8px 8px 0;
+}
+
+#whatsapp-chat-widget .agent-message p {
+  color: var(--whatsapp-text);
+}
+
+#whatsapp-chat-widget .user-message {
+  background-color: var(--whatsapp-user-bubble);
+  align-self: flex-end;
+  border-radius: 8px 8px 0 8px;
+}
+
+#whatsapp-chat-widget .message-time {
+  font-size: 11px;
+  color: var(--whatsapp-time);
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* WhatsApp Action Button */
+#whatsapp-chat-widget .send-message-button {
+  background-color: var(--whatsapp-primary);
+  color: white;
+  border-radius: 24px;
+  padding: 12px 24px;
+  width: 100%;
+}
+
+#whatsapp-chat-widget .send-message-button:hover {
+  background-color: var(--whatsapp-primary-hover);
+}
+
+/* WhatsApp Message Status Indicators */
+.message-status {
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.checkmark-sent {
+  color: var(--whatsapp-time);
+}
+
+.checkmark-delivered {
+  color: var(--whatsapp-time);
+}
+
+.checkmark-read {
+  color: var(--whatsapp-read-receipt);
+}
+
+/* WhatsApp Dark Mode Overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --whatsapp-chat-bg: #111b21;
+    --whatsapp-agent-bubble: #005c4b;
+    --whatsapp-user-bubble: #202c33;
+    --whatsapp-text: #e5e7eb;
+    --whatsapp-time: #8696a0;
+  }
+}
